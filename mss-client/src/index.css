@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.border_red_2 {
+    @apply border-2 border-red-500 border-solid
+}
