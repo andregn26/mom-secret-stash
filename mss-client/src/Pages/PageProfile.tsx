@@ -10,6 +10,7 @@ export const PageProfile = () => {
     return (
         <div>
             {user?.firstName} {user?.lastName}
+            <img src={user?.profileImg} alt="" />
         </div>
     )
 }

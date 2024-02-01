@@ -16,7 +16,8 @@ type User = {
 	lastName: string,
 	_id: string,
 	exp: number,
-	iat: number
+	iat: number,
+	profileImg: string
 }
 
 const AuthContext = createContext<AuthContextValue>(null!);

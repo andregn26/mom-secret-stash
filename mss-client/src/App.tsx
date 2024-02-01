@@ -9,7 +9,7 @@ import { TemplateNavigation } from './Templates/TemplateNavigation';
 function App() {
 
   return (
-    <div className='bg-base-100 w-full min-h-100vh'>
+    <div className='bg-base-100 w-full min-h-[100vh] relative'>
       <TemplateNavigation />
       <Routes>
         <Route element={<PageMain />} path='/' />

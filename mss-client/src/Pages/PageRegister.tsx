@@ -9,6 +9,26 @@ import { AuthForm } from "@/Components/Organisms/AuthForm";
 
 export const PageRegister = () => {
   const [registerValues, setRegisterValues] = useState({ firstName: "", lastName: "", email: "", password: "", checkPassword: "" });
+  const [file, setFile] = useState();
+  const [res, setRes] = useState({});
+  const [loading, setLoading] = useState(false);
+  const handleSelectFile = (e) => setFile(e.target.files[0]);
+
+  const handleUpload = async () => {
+    try {
+      let profileImg
+      setLoading(true);
+      const data = new FormData();
+      data.append("my_file", file);
+      const res = await axios.post("http://localhost:5005/api/auth/upload", data);
+      profileImg = res.data.url
+      console.log("🚀 ~ handleUpload ~ profileImg:", profileImg)
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const navigate = useNavigate();
 
@@ -24,9 +44,17 @@ export const PageRegister = () => {
   const handleRegisterSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
+
+      setLoading(true);
+      const data = new FormData();
+      data.append("my_file", file);
+      const res = await axios.post("http://localhost:5005/api/auth/upload", data);
+      const profileImg = res.data.url
       const { firstName, lastName, email, password } = registerValues;
-      const createAccount = await postSignup({ firstName, lastName, email, password });
+
+      const createAccount = await postSignup({ firstName, lastName, email, password, profileImg });
       toast(createAccount.data.message);
+      // handleUpload()
       navigate("/login");
       console.log("created account! -->", createAccount);
     } catch (error: unknown) {
@@ -48,68 +76,39 @@ export const PageRegister = () => {
           values={registerValues}
           auth="register"
         />
+
+        <>
+          <>
+            <label htmlFor="file" className="btn-grey">
+              {" "}
+              select file
+            </label>
+            {file && <center> {file.name}</center>}
+            <input id="file" type="file" onChange={handleSelectFile} multiple={false} />
+            <code>
+              {Object.keys(res).length > 0
+                ? Object.keys(res).map((key) => (
+                  <p className="output-item" key={key}>
+                    <span>{key}:</span>
+                    <span>
+                      {typeof res[key] === "object"
+                        ? "object"
+                        : res[key]}
+                    </span>
+                  </p>
+                ))
+                : null}
+            </code>
+            {file && (
+              <>
+                <button onClick={handleUpload} className="btn-green">
+                  {loading ? "uploading..." : "upload to cloudinary"}
+                </button>
+              </>
+            )}
+          </>
+        </>
       </AuthFormContainer>
-      <div className="flex flex-col">
-        Register
-        <form onSubmit={handleRegisterSubmit} className="flex flex-col bg-gray-100 gap-4 py-6 px-4">
-          <label className="flex flex-col">
-            First name
-            <input
-              type="text"
-              id="firstName"
-              required
-              placeholder="First name"
-              value={registerValues.firstName}
-              onChange={handleRegisterChange}
-            />
-          </label>
-
-          {/* <label className="flex flex-col">
-            Last name
-            <input
-              type="text"
-              required
-              placeholder="Last Name"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-            />
-          </label>
-
-          <label className="flex flex-col">
-            Your email
-            <input
-              type="email"
-              required
-              placeholder="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </label>
-
-          <label className="flex flex-col">
-            Password
-            <input
-              type="password"
-              required
-              placeholder="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </label>
-
-          <label className="flex flex-col">
-            Check password
-            <input
-              type="password"
-              placeholder="password"
-              value={checkPassword}
-              onChange={(e) => setCheckPassword(e.target.value)}
-            />
-          </label> */}
-
-          <button type="submit">Submit</button>
-        </form>
-      </div>
     </TemplateAuth>
   );
 };

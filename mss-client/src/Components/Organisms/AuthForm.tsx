@@ -7,6 +7,7 @@ type ValuesRegister = {
     checkPassword: string;
     firstName: string;
     lastName: string;
+    file: string | null
 };
 type ValuesLogin = {
     email: string;
@@ -33,6 +34,7 @@ export const AuthForm = ({ handleSubmit, values, handleChange, auth }: Props) =>
                     {"lastName" in values && (
                         <InputText handleChange={handleChange} value={values.lastName} id="lastName" type="text" label="Last name" />
                     )}
+
                 </>
             )}
             <InputText handleChange={handleChange} value={values.email} id="email" type="email" label="Email" />

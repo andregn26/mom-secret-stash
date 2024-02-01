@@ -1,7 +1,7 @@
 import axios from "axios";
 const BASE_URL = `${import.meta.env.VITE_API}` || "http://localhost:5005/api";
 
-type RegisterUser = { firstName: string; lastName: string; email: string; password: string };
+type RegisterUser = { firstName: string; lastName: string; email: string; password: string; profileImg?: string | null };
 type LoginUser = { email: string; password: string };
 
 export const postSignup = (user: RegisterUser) => {
