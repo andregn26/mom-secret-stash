@@ -3,9 +3,9 @@ const cloudinary = require("cloudinary").v2;
 const Multer = require("multer");
 
 cloudinary.config({
-	cloud_name: process.env.CLOUD_NAME,
-	api_key: process.env.API_KEY,
-	api_secret: process.env.API_SECRET,
+	cloud_name: process.env.CLOUDINARY_NAME,
+	api_key: process.env.CLOUDINARY_KEY,
+	api_secret: process.env.CLOUDINARY_SECRET,
 });
 async function handleUpload(file) {
 	const res = await cloudinary.uploader.upload(file, {
@@ -19,4 +19,4 @@ const upload = Multer({
 	storage,
 });
 
-module.export = { handleUpload, upload };
+module.exports = { upload, handleUpload };
