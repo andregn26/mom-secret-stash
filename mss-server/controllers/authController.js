@@ -4,7 +4,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 exports.postSignup = async (req, res, next) => {
-	const { firstName, lastName, email, password } = req.body;
+	const { firstName, lastName, email, password, profileImg } = req.body;
 	try {
 		// Check if email or password or name are provided as empty strings
 		if (email === "" || password === "" || firstName === "" || lastName === "") {
@@ -43,14 +43,14 @@ exports.postSignup = async (req, res, next) => {
 				const hashedPassword = bcrypt.hashSync(password, salt);
 				// Create the new user in the database
 				// We return a pending promise, which allows us to chain another `then`
-				return User.create({ firstName, lastName, email, password: hashedPassword });
+				return User.create({ firstName, lastName, email, password: hashedPassword, profileImg });
 			})
 			.then((createdUser) => {
 				// Deconstruct the newly created user object to omit the password
 				// We should never expose passwords publicly
 				const { email, firstName, lastName, _id } = createdUser;
 				// Create a new object that doesn't expose the password
-				const user = { email, firstName, lastName, _id };
+				const user = { email, firstName, lastName, _id, profileImg };
 				// Send a json response containing the user object
 				res.status(201).json({ message: "User created!", user: user });
 			})
@@ -78,9 +78,9 @@ exports.postLogin = async (req, res, next) => {
 			const passwordCorrect = bcrypt.compareSync(password, foundUser.password);
 			if (passwordCorrect) {
 				// Deconstruct the user object to omit the password
-				const { _id, email, firstName, lastName } = foundUser;
+				const { _id, email, firstName, lastName, profileImg } = foundUser;
 				// Create an object that will be set as the token payload
-				const payload = { _id, email, firstName, lastName };
+				const payload = { _id, email, firstName, lastName, profileImg };
 				// Create a JSON Web Token and sign it
 				const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
 					algorithm: "HS256",
@@ -103,3 +103,11 @@ exports.getVerify = (req, res, next) => {
 	// Send back the token payload object containing the user data
 	res.status(200).json(req.payload);
 };
+
+// exports.postUploadProfileImg = async (req, res, next) => {
+// 	try {
+// 		res.status(200).json(req.file.path);
+// 	} catch (error) {
+// 		res.status(500).json({ message: `An error occured while uploading the image - ${error.message}` });
+// 	}
+// };
