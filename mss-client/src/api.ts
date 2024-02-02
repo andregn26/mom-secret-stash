@@ -15,3 +15,7 @@ export const postLogin = (user: LoginUser) => {
 export const getVerify = (storedToken: string) => {
 	return axios.get(`${BASE_URL}/auth/verify`, { headers: { Authorization: `Bearer ${storedToken}` } });
 };
+
+export const postUpload = (data: FormData) => {
+	return axios.post(`${BASE_URL}/upload`, data);
+};
