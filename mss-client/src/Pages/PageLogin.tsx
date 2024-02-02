@@ -35,7 +35,6 @@ export const PageLogin = () => {
         storeToken(response.data.authToken);
         authenticateUser();
         toast.custom((t) => {
-          console.log("🚀 ~ toast.custom ~ t:", t);
           return <LoginSuccessToast t={t} />;
         });
         navigate("/profile");

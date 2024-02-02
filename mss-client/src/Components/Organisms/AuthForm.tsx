@@ -7,7 +7,6 @@ type ValuesRegister = {
     checkPassword: string;
     firstName: string;
     lastName: string;
-    file: string | null
 };
 type ValuesLogin = {
     email: string;
@@ -19,9 +18,11 @@ type Props = {
     values: ValuesLogin | ValuesRegister;
     handleChange: (arg: { target: { id: string; value: string } }) => void;
     auth: "login" | "register";
+    handleSelectFileProfileImg?: (arg: React.ChangeEvent<HTMLInputElement>) => void;
+    isCreatingUser?: boolean;
 };
 
-export const AuthForm = ({ handleSubmit, values, handleChange, auth }: Props) => {
+export const AuthForm = ({ handleSubmit, values, handleChange, auth, handleSelectFileProfileImg, isCreatingUser }: Props) => {
     return (
         <form
             onSubmit={handleSubmit}
@@ -29,20 +30,53 @@ export const AuthForm = ({ handleSubmit, values, handleChange, auth }: Props) =>
             {auth === "register" && (
                 <>
                     {"firstName" in values && (
-                        <InputText handleChange={handleChange} value={values.firstName} id="firstName" type="text" label="First name" />
+                        <InputText
+                            handleChange={handleChange}
+                            value={values.firstName}
+                            id="firstName"
+                            type="text"
+                            label="First name"
+                        />
                     )}
                     {"lastName" in values && (
-                        <InputText handleChange={handleChange} value={values.lastName} id="lastName" type="text" label="Last name" />
+                        <InputText
+                            handleChange={handleChange}
+                            value={values.lastName}
+                            id="lastName"
+                            type="text"
+                            label="Last name"
+                        />
                     )}
-
                 </>
             )}
             <InputText handleChange={handleChange} value={values.email} id="email" type="email" label="Email" />
-            <InputText handleChange={handleChange} value={values.password} id="password" type="password" label="Password" isPasswordInput={true} />
+            <InputText
+                handleChange={handleChange}
+                value={values.password}
+                id="password"
+                type="password"
+                label="Password"
+                isPasswordInput={true}
+            />
 
-            <div className="relative">
-                <button type="submit" className="bg-blue-500 text-white rounded-md px-2 py-1">
-                    Submit
+            {auth === "register" && (
+                <>
+                    <div className="relative pt-2">
+                        <input
+                            className="file-input file-input-ghost file-input-sm file-input-bordered w-full bg-white"
+                            id="file"
+                            type="file"
+                            onChange={handleSelectFileProfileImg}
+                            multiple={false}
+                        />
+                    </div>
+                </>
+            )}
+
+            <div className="relative ">
+                <button disabled={isCreatingUser} type="submit" className={`btn btn-sm btn-primary w-[150px] ${isCreatingUser ? "btn-disabled" : "btn-active"}`}>
+                    {isCreatingUser ? <>Creating user...</> : <>Submit</>}
+
                 </button>
             </div>
         </form>
