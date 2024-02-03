@@ -1,11 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
-import { TemplateAuth } from "../Templates/TemplateAuth";
 import { postSignup, postUpload } from "../api";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import axios from "axios";
-import { AuthFormContainer } from "@/Components/Organisms/AuthFormContainer";
+import { AuthFormContainer } from "@/Components/Organisms/FormContainer";
 import { AuthForm } from "@/Components/Organisms/AuthForm";
 
 export const PageRegister = () => {
@@ -56,17 +55,15 @@ export const PageRegister = () => {
   };
 
   return (
-    <TemplateAuth>
-      <AuthFormContainer title="Great! You're one step closer to find the best recipes">
-        <AuthForm
-          handleSelectFileProfileImg={handleSelectFileProfileImg}
-          handleSubmit={handleRegisterSubmit}
-          handleChange={handleRegisterChange}
-          values={registerValues}
-          auth="register"
-          isCreatingUser={isCreatingUser}
-        />
-      </AuthFormContainer>
-    </TemplateAuth>
+    <AuthFormContainer title="Great! You're one step closer to find the best recipes">
+      <AuthForm
+        handleSelectFileProfileImg={handleSelectFileProfileImg}
+        handleSubmit={handleRegisterSubmit}
+        handleChange={handleRegisterChange}
+        values={registerValues}
+        auth="register"
+        isCreatingUser={isCreatingUser}
+      />
+    </AuthFormContainer>
   );
 };

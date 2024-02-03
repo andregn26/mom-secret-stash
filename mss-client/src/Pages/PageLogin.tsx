@@ -1,12 +1,11 @@
 import { useState, useContext } from "react";
-import { TemplateAuth } from "../Templates/TemplateAuth";
 import { postLogin } from "../api";
 import { AuthContext } from "../context/auth.context";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { LoginSuccessToast } from "@/Components/Molecules/Toasts/LoginSuccessToast";
 import { AuthForm } from "@/Components/Organisms/AuthForm";
-import { AuthFormContainer } from "@/Components/Organisms/AuthFormContainer";
+import { AuthFormContainer } from "@/Components/Organisms/FormContainer";
 
 export const PageLogin = () => {
   // const [email, setEmail] = useState<string>("");
@@ -46,15 +45,13 @@ export const PageLogin = () => {
   };
 
   return (
-    <TemplateAuth>
-      <AuthFormContainer title="Discover the best recipes">
-        <AuthForm
-          handleSubmit={handleLoginSubmit}
-          values={loginValues}
-          handleChange={handleLoginChange}
-          auth="login"
-        />
-      </AuthFormContainer>
-    </TemplateAuth>
+    <AuthFormContainer title="Discover the best recipes">
+      <AuthForm
+        handleSubmit={handleLoginSubmit}
+        values={loginValues}
+        handleChange={handleLoginChange}
+        auth="login"
+      />
+    </AuthFormContainer>
   );
 };

@@ -1,9 +1,7 @@
-import { TemplateSectionWithPadding } from "@/Templates/TemplateSectionWithPadding"
-
 export const PageMain = () => {
   return (
-    <TemplateSectionWithPadding>
+    <p>
       Main Page
-    </TemplateSectionWithPadding>
+    </p>
   )
 }

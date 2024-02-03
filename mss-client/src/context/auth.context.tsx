@@ -1,7 +1,7 @@
 import { useEffect, useState, createContext } from "react";
 import { getVerify } from "../api";
 import { useNavigate } from "react-router-dom";
-
+import { User } from "@/types/userTypes";
 interface AuthContextValue {
 	isLoggedIn: boolean, isLoading: boolean, user: User | null, storeToken: (arg: string) => void, authenticateUser: () => void, logoutUser: () => void
 }
@@ -10,22 +10,13 @@ type Props = {
 	children?: React.ReactNode;
 };
 
-type User = {
-	email: string,
-	firstName: string,
-	lastName: string,
-	_id: string,
-	exp: number,
-	iat: number,
-	profileImg: string
-}
-
 const AuthContext = createContext<AuthContextValue>(null!);
 
 function AuthProviderWrapper(props: Props) {
 	const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 	const [user, setUser] = useState<User | null>(null);
+	console.log("🚀 ~ AuthProviderWrapper ~ user:", user)
 
 	const navigate = useNavigate()
 
