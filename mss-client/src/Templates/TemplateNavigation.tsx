@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "@/context/auth.context";
 import { ButtonMenu } from "@/Components/Atoms/ButtonMenu";
 import { NavigationProfile } from "@/Components/Organisms/NavigationProfile";
+import { CloseSmall, User } from "@icon-park/react";
 
 type Props = {
     children?: React.ReactNode;
@@ -26,17 +27,48 @@ export const TemplateNavigation = ({ children }: Props) => {
     return (
         <>
             <aside
-                className={`absolute left-0 top-0 z-[9999] flex h-screen w-72 flex-col overflow-y-hidden bg-slate-900 duration-300 ease-linear lg:static  ${isAsideOpen ? "translate-x-0" : "lg:translate-x-0 translate-x-[-100%]"
+                className={`absolute left-0 top-0 z-[9999] flex h-screen w-64 lg:w-68  flex-col overflow-y-hidden bg-[#4c0519] text-neutral duration-300 ease-linear lg:static  ${isAsideOpen ? "translate-x-0" : "lg:translate-x-0 translate-x-[-100%] "
                     }`}>
-                <button onClick={() => setIsAsideOpen(false)}>fechar</button>
-                <Link className="text-base-100" to={"/"}>Main Page</Link>
-                <Link className="text-base-100" to={"/explore"}>Explore</Link>
-                <Link className="text-base-100" to={"/recipes/my-recipes"}>My recipes</Link>
-                <Link className="text-base-100" to={"/recipes/favorites"}>Favorite recipes</Link>
-                <Link className="text-base-100" to={"/recipes/create"}>Create Recipe</Link>
-            </aside>
+                {/* HEADER */}
+                <div className="flex items-center justify-between gap-2 px-4 py-4 lg:py-6">
+                    <NavLink to={"/"}>LOGO</NavLink>
+                    <button className="lg:hidden" onClick={() => setIsAsideOpen(false)}>
+                        <CloseSmall theme="outline" size="24" className="text-neutral" />
+                    </button>
+                </div>
+                <nav className="mt-5 py-4 px-4 lg:mt-9 lg:px-6">
+                    <ul>
+                        <li>
+                            <NavLink onClick={() => setIsAsideOpen(false)} className={({ isActive }) =>
+                            (isActive ? 'group mss-link font-semibold text-primary-content' : 'group mss-link font-normal text-primary-content/80'
+                            )} to={"/profile"}><User theme="outline" size="18" className="text-neutral" />Profile</NavLink>
+                        </li>
+                        <li>
+                            <NavLink onClick={() => setIsAsideOpen(false)} className={({ isActive }) =>
+                            (isActive ? 'group mss-link font-semibold text-primary-content' : 'group mss-link font-normal text-primary-content/80'
+                            )} to={"/explore"}>Explore</NavLink>
+                        </li>
+                        <li>
+                            <NavLink onClick={() => setIsAsideOpen(false)} className={({ isActive }) =>
+                            (isActive ? 'group mss-link font-semibold text-primary-content' : 'group mss-link font-normal text-primary-content/80'
+                            )} to={`/${user?._id}/my-recipes`}>My recipes</NavLink>
+                        </li>
+                        <li>
+                            <NavLink onClick={() => setIsAsideOpen(false)} className={({ isActive }) =>
+                            (isActive ? 'group mss-link font-semibold text-primary-content' : 'group mss-link font-normal text-primary-content/80'
+                            )} to={"/recipe/favorites"}>Favorite recipes</NavLink>
+                        </li>
+                        <li>
+                            <NavLink onClick={() => setIsAsideOpen(false)} className={({ isActive }) =>
+                            (isActive ? 'group mss-link font-semibold text-primary-content' : 'group mss-link font-normal text-primary-content/80'
+                            )} to={"/recipe/create"}>Create Recipe</NavLink>
+                        </li>
+                    </ul>
+
+                </nav>
+            </aside >
             <div className="relative h-full flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
-                <header className="sticky top-0 z-[999] flex w-full bg-white shadow-md">
+                <header className="sticky top-0 z-[999] flex w-full bg-neutral shadow-md">
                     <nav className="flex w-full flex-grow items-center justify-between px-4 py-4 shadow-2 md:px-6 2xl:px-11">
                         <div className="flex items-center gap-2 sm:gap-4 lg:hidden">
                             <ButtonMenu setIsAsideOpen={setIsAsideOpen} />
@@ -53,19 +85,15 @@ export const TemplateNavigation = ({ children }: Props) => {
                                 />
                             ) : (
                                 <div className="flex gap-1">
-                                    <Link className="btn btn-ghost btn-sm" to={"/login"}>
+                                    <NavLink className="btn btn-ghost btn-sm" to={"/login"}>
                                         Login
-                                    </Link>
-                                    <Link className="btn btn-sm btn-primary" to={"/register"}>
+                                    </NavLink>
+                                    <NavLink className="btn btn-sm btn-primary" to={"/register"}>
                                         Register
-                                    </Link>
+                                    </NavLink>
                                 </div>
                             )}
                         </div>
-
-                        {/* {!isLoggedIn ? <><Link to={"/register"}>Register</Link>
-                    <Link to={"/login"}>Login</Link></> : <><Link to={"/profile"}>Profile</Link> <button onClick={logoutUser}>Logout</button> </>
-                } */}
                     </nav>
                 </header>
                 {children}

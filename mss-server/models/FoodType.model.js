@@ -4,8 +4,8 @@ const foodTypeSchema = new Schema(
 	{
 		name: {
 			type: String,
-			required: true,
-			unique: true,
+			// required: true,
+			// unique: true,
 			enum: [
 				"Breakfasts",
 				"Main Courses",
@@ -21,7 +21,7 @@ const foodTypeSchema = new Schema(
 				"Soups",
 			],
 		},
-		description: { type: String },
+		// description: { type: String },
 		recipes: [{ type: Schema.Types.ObjectId, ref: "Recipe" }],
 	},
 	{

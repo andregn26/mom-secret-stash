@@ -1,16 +1,13 @@
 import { useState, useContext } from "react";
-import { postLogin } from "../api";
-import { AuthContext } from "../context/auth.context";
+import { postLogin } from "../../api";
+import { AuthContext } from "../../context/auth.context";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { LoginSuccessToast } from "@/Components/Molecules/Toasts/LoginSuccessToast";
 import { AuthForm } from "@/Components/Organisms/AuthForm";
-import { AuthFormContainer } from "@/Components/Organisms/FormContainer";
+import { FormContainer } from "@/Components/Organisms/FormContainer";
 
 export const PageLogin = () => {
-  // const [email, setEmail] = useState<string>("");
-  // const [password, setPassword] = useState<string>("");
-
   const [loginValues, setLoginValues] = useState({ email: "", password: "" })
 
   const navigate = useNavigate();
@@ -45,13 +42,13 @@ export const PageLogin = () => {
   };
 
   return (
-    <AuthFormContainer title="Discover the best recipes">
+    <FormContainer title="Discover the best recipes">
       <AuthForm
         handleSubmit={handleLoginSubmit}
         values={loginValues}
         handleChange={handleLoginChange}
         auth="login"
       />
-    </AuthFormContainer>
+    </FormContainer>
   );
 };

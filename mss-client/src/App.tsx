@@ -1,28 +1,46 @@
 import "./App.css";
 import { Toaster } from "react-hot-toast";
 import { Routes, Route } from "react-router-dom";
-import { PageRegister } from "./Pages/PageRegister";
-import { PageLogin } from "@/Pages/PageLogin";
+import { PageRegister } from "./Pages/Auth/PageRegister";
+import { PageLogin } from "@/Pages/Auth/PageLogin";
 import { PageMain } from "./Pages/PageMain";
-import { PageProfile } from "./Pages/PageProfile";
+import { PageProfile } from "./Pages/Auth/PageProfile";
 import { TemplateNavigation } from "./Templates/TemplateNavigation";
-import { PageCreateRecipe } from "./Pages/PageCreateRecipe";
+import { PageCreateRecipe } from "./Pages/Recipes/PageCreateRecipe";
+import { PageMyRecipes } from "./Pages/Recipes/PageMyRecipes";
+import { PrivateRoute } from "./Components/Atoms/PrivateRoute";
+import { PageSingleRecipe } from "./Pages/Recipes/PageSingleRecipe";
+import { PageEditRecipe } from "./Pages/Recipes/PageEditRecipe";
 function App() {
+
   return (
-    <div className="relative bg-base-100 w-full h-screen overflow-hidden lg:flex ">
+    <div className="relative bg-base-100 w-full h-screen overflow-hidden lg:flex font-barlow">
       <TemplateNavigation>
-        <main className="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10 ">
+        <main className="mx-auto max-w-screen-xl w-full pt-12 px-4 pb-4 md:px-6 md:pb-6 xl:px-12 xl:pb-12 2xl:px-16">
           <Routes>
             <Route index element={<PageMain />} />
             <Route path={"login"} element={<PageLogin />} />
             <Route path={"register"} element={<PageRegister />} />
-            <Route path={"profile"} element={<PageProfile />} />
-            <Route path={"recipes"}>
-              <Route path="create" element={<PageCreateRecipe />} />
+            <Route path={"profile"} element={<PrivateRoute><PageProfile /></PrivateRoute>} />
+            <Route
+              path="/:userId/my-recipes"
+              element={
+                <PrivateRoute>
+                  <PageMyRecipes />
+                </PrivateRoute>
+              }
+            />
+            <Route path={"recipe"}>
+              <Route path="create" element={
+                <PrivateRoute>
+                  <PageCreateRecipe />
+                </PrivateRoute>
+              } />
+              <Route path=":recipeId" element={<PageSingleRecipe />} />
+              <Route path=":recipeId/edit" element={<PageEditRecipe />} />
             </Route>
           </Routes>
         </main>
-
       </TemplateNavigation>
 
       <Toaster position="bottom-right" />

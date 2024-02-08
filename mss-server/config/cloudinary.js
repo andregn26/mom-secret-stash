@@ -8,6 +8,7 @@ cloudinary.config({
 });
 async function handleUpload(file) {
 	const res = await cloudinary.uploader.upload(file, {
+		folder: "mss",
 		resource_type: "auto",
 	});
 	return res;

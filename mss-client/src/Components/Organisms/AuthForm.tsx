@@ -1,5 +1,6 @@
 import React from "react";
-import { InputText } from "../Atoms/InputText";
+import { InputText } from "../Atoms/InputText.old";
+import { ButtonSubmit } from "../Atoms/ButtonSubmit";
 
 type ValuesRegister = {
     email: string;
@@ -19,13 +20,13 @@ type Props = {
     handleChange: (arg: { target: { id: string; value: string } }) => void;
     auth: "login" | "register";
     handleSelectFileProfileImg?: (arg: React.ChangeEvent<HTMLInputElement>) => void;
-    isCreatingUser?: boolean;
+    isLoading?: boolean;
 };
 
-export const AuthForm = ({ handleSubmit, values, handleChange, auth, handleSelectFileProfileImg, isCreatingUser }: Props) => {
+export const AuthForm = ({ handleSubmit, values, handleChange, auth, handleSelectFileProfileImg, isLoading }: Props) => {
     return (
         <form
-            onSubmit={handleSubmit}
+            onSubmit={(e) => handleSubmit(e)}
             className="py-8 text-base leading-6 space-y-4 text-gray-700 sm:text-lg sm:leading-7 flex flex-col gap-2">
             {auth === "register" && (
                 <>
@@ -74,10 +75,7 @@ export const AuthForm = ({ handleSubmit, values, handleChange, auth, handleSelec
             )}
 
             <div className="relative ">
-                <button disabled={isCreatingUser} type="submit" className={`btn btn-sm btn-primary w-[150px] ${isCreatingUser ? "btn-disabled" : "btn-active"}`}>
-                    {isCreatingUser ? <>Creating user...</> : <>Submit</>}
-
-                </button>
+                <ButtonSubmit status={isLoading ? "submitting" : "idle"} buttonText={auth === "login" ? "Log In" : "Create Account"} />
             </div>
         </form>
     );

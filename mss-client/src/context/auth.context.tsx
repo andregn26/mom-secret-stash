@@ -16,7 +16,6 @@ function AuthProviderWrapper(props: Props) {
 	const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 	const [user, setUser] = useState<User | null>(null);
-	console.log("🚀 ~ AuthProviderWrapper ~ user:", user)
 
 	const navigate = useNavigate()
 
