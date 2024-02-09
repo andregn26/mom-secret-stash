@@ -16,6 +16,16 @@ const ingredientSchema = new Schema({
 			"Drinks and Wine Racks",
 		],
 	},
+	quantity: Number,
+	unit: {
+		type: String,
+		enum: ["Cup", "Gallon", "Gram", "Liter", "Milliliter", "Tablespoon", "Teaspoon", "Whole"],
+	},
+	calories: Number,
+	Fat: Number,
+	Carbs: Number,
+	Protein: Number,
+	Fiber: Number,
 });
 
 const Ingredient = model("Ingredient", ingredientSchema);
