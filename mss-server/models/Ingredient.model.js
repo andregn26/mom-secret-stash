@@ -7,7 +7,7 @@ const ingredientSchema = new Schema({
 		enum: [
 			"Grocery",
 			"Bio & Nutrition",
-			"Laticionios e Ovos",
+			"Fishery and Butchery",
 			"Dairy and Eggs",
 			"Fruits and vegetables",
 			"Charcuterie and Cheese",
