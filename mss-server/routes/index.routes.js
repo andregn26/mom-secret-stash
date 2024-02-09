@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const authRoutes = require("./auth.routes");
+const ingredientsRoutes = require("./ingredients.routes");
 const recipesRoutes = require("./recipes.routes");
 const foodTypes = require("./foodTypes.routes");
 const userRoutes = require("./user.routes");
@@ -14,6 +15,7 @@ router.get("/", (req, res, next) => {
 });
 
 router.use("/auth", authRoutes);
+router.use("/ingredients", ingredientsRoutes);
 router.use("/recipe", recipesRoutes);
 router.use("/food-types", foodTypes);
 router.use("/profile", userRoutes);

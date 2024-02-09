@@ -4,6 +4,7 @@ const ingredientSchema = new Schema({
 	name: { type: String, required: true, unique: true },
 	category: {
 		type: String,
+		required: true,
 		enum: [
 			"Grocery",
 			"Bio & Nutrition",
@@ -16,16 +17,17 @@ const ingredientSchema = new Schema({
 			"Drinks and Wine Racks",
 		],
 	},
-	quantity: Number,
+	quantity: { type: Number, required: true },
 	unit: {
 		type: String,
+		required: true,
 		enum: ["Cup", "Gallon", "Gram", "Liter", "Milliliter", "Tablespoon", "Teaspoon", "Whole"],
 	},
-	calories: Number,
-	Fat: Number,
-	Carbs: Number,
-	Protein: Number,
-	Fiber: Number,
+	calories: { type: Number, required: true },
+	fat: { type: Number, required: true },
+	carbs: { type: Number, required: true },
+	protein: { type: Number, required: true },
+	fiber: { type: Number, required: true },
 });
 
 const Ingredient = model("Ingredient", ingredientSchema);
