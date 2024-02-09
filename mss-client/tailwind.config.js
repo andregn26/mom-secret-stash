@@ -41,6 +41,8 @@ export default {
 					success: "#00cf6b",
 					warning: "#ff7b00",
 					error: "#ff0069",
+
+					"--rounded-btn": "0.2rem", // border radius rounded-btn utility class, used in buttons and similar element
 				},
 			},
 			// {

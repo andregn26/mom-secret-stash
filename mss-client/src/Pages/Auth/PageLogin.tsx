@@ -33,7 +33,7 @@ export const PageLogin = () => {
         toast.custom((t) => {
           return <LoginSuccessToast t={t} />;
         });
-        navigate("/profile");
+        navigate("/explore");
       })
       .catch((error) => {
         toast.error(error.response.data.message);

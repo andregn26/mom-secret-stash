@@ -10,10 +10,13 @@ export type Recipe = {
 export type RecipeToCreate = {
 	name: string;
 	description: string;
-	instructions: Instruction[];
 	ingredients: Ingredient[];
+	instructions: Instruction[];
+	prepTime: number;
+	servings: number;
+	foodType: string;
 	createdBy?: string;
-	foodType:string
+	imageUrl?: string;
 };
 
 export type RecipeToEdit = {
@@ -23,7 +26,8 @@ export type RecipeToEdit = {
 
 export type Ingredient = {
 	ingredient: string;
-	quantity: string;
+	quantity: number;
+	measure: string
 };
 
 export type Instruction = {

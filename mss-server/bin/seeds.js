@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const FoodType = require("../models/FoodType.model");
+const Tool = require("../models/Tool.model");
 
 // User.collection.drop();
 
@@ -23,9 +24,18 @@ const foodType = [
 	{ name: "Soups" },
 ];
 
+const tools = [
+	{name:"Airfryer"}, {name:"Oven"}, {name:"Slow Cook"}
+]
+
+Tool.create(tools).then(dbTools => {
+	console.log(`Created ${dbTools.length} tools`);
+	mongoose.connection.close();
+}).catch((err) => console.log(`An error occurred while creating fake tools in the DB: ${err}`));
+
 FoodType.create(foodType)
-	.then((dbUsers) => {
-		console.log(`Created ${dbUsers.length} food types`);
+	.then((dbFoodTypes) => {
+		console.log(`Created ${dbFoodTypes.length} food types`);
 		mongoose.connection.close();
 	})
 	.catch((err) => console.log(`An error occurred while creating fake food types in the DB: ${err}`));

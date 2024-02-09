@@ -23,7 +23,7 @@ export const PageMyRecipes = () => {
                 setAllRecipesFromUser(allRecipesFromUser.data.recipes);
             });
         }
-    }, [userId, renderAfterDelete]);
+    }, [userId, renderAfterDelete, user?._id]);
 
     const handleDelete = (recipeId: string) => {
         deleteRecipe(recipeId).then((deletedRecipe) => {
