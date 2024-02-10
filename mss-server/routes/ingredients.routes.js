@@ -4,6 +4,11 @@ const Ingredient = require("../models/Ingredient.model");
 router.post("/create", (req, res, next) => {
 	const { name, category, quantity, unit, calories, fat, carbs, protein, fiber } = req.body;
 
+	if (name === "") {
+		res.status(400).json({ message: "Please give a name to ingredient" });
+		return;
+	}
+
 	Ingredient.findOne({ name })
 		.then((foundedIngredient) => {
 			if (foundedIngredient) {
@@ -11,7 +16,7 @@ router.post("/create", (req, res, next) => {
 				return;
 			}
 			return Ingredient.create({ name, category, quantity, unit, calories, fat, carbs, protein, fiber })
-				.finally((createdIngredient) => {
+				.then((createdIngredient) => {
 					res.status(200).json({ message: "Ingredient created", createdIngredient });
 				})
 				.catch((error) => next(error));
