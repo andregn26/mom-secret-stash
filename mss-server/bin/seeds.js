@@ -24,14 +24,14 @@ const foodType = [
 	{ name: "Soups" },
 ];
 
-const tools = [
-	{name:"Airfryer"}, {name:"Oven"}, {name:"Slow Cook"}
-]
+const tools = [{ name: "Airfryer" }, { name: "Oven" }, { name: "Slow Cook" }];
 
-Tool.create(tools).then(dbTools => {
-	console.log(`Created ${dbTools.length} tools`);
-	mongoose.connection.close();
-}).catch((err) => console.log(`An error occurred while creating fake tools in the DB: ${err}`));
+Tool.create(tools)
+	.then((dbTools) => {
+		console.log(`Created ${dbTools.length} tools`);
+		mongoose.connection.close();
+	})
+	.catch((err) => console.log(`An error occurred while creating fake tools in the DB: ${err}`));
 
 FoodType.create(foodType)
 	.then((dbFoodTypes) => {

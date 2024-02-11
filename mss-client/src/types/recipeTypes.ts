@@ -27,7 +27,7 @@ export type RecipeToEdit = {
 export type Ingredient = {
 	ingredient: string;
 	quantity: number;
-	measure: string
+	measure: string;
 };
 
 export type Instruction = {
