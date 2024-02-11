@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NavigationHeader } from "@/Components/Molecules/NavigationHeader";
 import { useEffect, useState, useMemo } from "react";
-import { getAllIngredients } from "@/api";
-import { FileEditing } from "@icon-park/react";
+import { deleteIngredient, getAllIngredients } from "@/api";
+import { Info } from "@icon-park/react";
 import {
 	Column,
 	Table,
@@ -19,74 +19,101 @@ import {
 	flexRender,
 } from "@tanstack/react-table";
 import { Ingredient } from "@/types/ingredientTypes";
-import { Link } from "react-router-dom";
+import { ButtonDelete } from "@/Components/Atoms/ButtonDelete";
+import toast from "react-hot-toast";
+import axios from "axios";
 
 const columnHelper = createColumnHelper<Ingredient>();
-
-const columns = [
-	columnHelper.accessor((row) => row.name, {
-		id: "ingredient-table-name",
-		cell: (props) => (
-			<div className="flex gap-2 items-center">
-				<Link to={`/ingredients/${props.row.original._id}`}>
-					<FileEditing theme="outline" size="14" />
-				</Link>
-				<span className="font-semibold">{props.getValue()}</span>
-			</div>
-		),
-		header: () => "Name",
-	}),
-	columnHelper.accessor((row) => row.category, {
-		id: "ingredient-table-category",
-		cell: (info) => <span className="text-xs italic">{info.getValue()}</span>,
-		header: () => "Category",
-	}),
-	columnHelper.accessor((row) => row.quantity, {
-		id: "ingredient-table-quantity",
-		cell: (info) => info.getValue(),
-		header: () => "Quantity",
-	}),
-	columnHelper.accessor((row) => row.unit, {
-		id: "ingredient-table-unit",
-		cell: (info) => info.getValue(),
-		header: () => "Unit",
-	}),
-	columnHelper.accessor((row) => row.calories, {
-		id: "ingredient-table-calories",
-		cell: (info) => info.getValue(),
-		header: () => "Calories",
-	}),
-	columnHelper.accessor((row) => row.fat, {
-		id: "ingredient-table-fat",
-		cell: (info) => info.getValue(),
-		header: () => "Fat",
-	}),
-	columnHelper.accessor((row) => row.carbs, {
-		id: "ingredient-table-carbs",
-		cell: (info) => info.getValue(),
-		header: () => "Carbs",
-	}),
-	columnHelper.accessor((row) => row.protein, {
-		id: "ingredient-table-protein",
-		cell: (info) => info.getValue(),
-		header: () => "Protein",
-	}),
-	columnHelper.accessor((row) => row.fiber, {
-		id: "ingredient-table-fiber",
-		cell: (info) => info.getValue(),
-		header: () => "Fiber",
-	}),
-];
 
 export const PageAllIngredients = () => {
 	const [allIngredients, setAllIngredients] = useState<Ingredient[]>([]);
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+	const [renderAgain, setRenderAgain] = useState(false);
 	useEffect(() => {
 		(async () => {
+			setRenderAgain(false);
 			const res = await getAllIngredients();
 			setAllIngredients(res.data.foundedIngredients);
 		})();
-	}, []);
+	}, [renderAgain]);
+
+	const handleDeleteIngredient = (ingredientId: string | undefined) => {
+		if (typeof ingredientId === "string") {
+			deleteIngredient(ingredientId)
+				.then((deletedIngredient) => {
+					console.log("🚀 ~ deleteIngredient ~ deletedIngredient:", deletedIngredient);
+					setRenderAgain(true);
+					toast.success(deletedIngredient.data.message);
+				})
+				.catch((error) => {
+					if (axios.isAxiosError(error)) {
+						toast.error(error.response?.data.message);
+					} else {
+						toast.error("Something went wrong!");
+					}
+				});
+		}
+	};
+
+	const columns = [
+		columnHelper.accessor((row) => row.name, {
+			id: "ingredient-table-name",
+			cell: (props) => (
+				<div className="flex gap-2 items-center">
+					<ButtonDelete
+						renderComponent="allIngredients"
+						btnTextOrElement={<Info theme="outline" size="12" className="text-accent" />}
+						nameOfItemToDelete={props.row.original.name}
+						editLink={`/ingredients/${props.row.original._id}`}
+						handleDelete={() => handleDeleteIngredient(props.row.original._id)}
+					/>
+
+					<span className="font-semibold text-accent">{props.getValue()}</span>
+				</div>
+			),
+			header: () => "Name",
+		}),
+		columnHelper.accessor((row) => row.category, {
+			id: "ingredient-table-category",
+			cell: (info) => <span className="text-xs italic">{info.getValue()}</span>,
+			header: () => "Category",
+		}),
+		columnHelper.accessor((row) => row.quantity, {
+			id: "ingredient-table-quantity",
+			cell: (info) => info.getValue(),
+			header: () => "Quantity",
+		}),
+		columnHelper.accessor((row) => row.unit, {
+			id: "ingredient-table-unit",
+			cell: (info) => info.getValue(),
+			header: () => "Unit",
+		}),
+		columnHelper.accessor((row) => row.calories, {
+			id: "ingredient-table-calories",
+			cell: (info) => info.getValue(),
+			header: () => "Calories",
+		}),
+		columnHelper.accessor((row) => row.fat, {
+			id: "ingredient-table-fat",
+			cell: (info) => info.getValue(),
+			header: () => "Fat",
+		}),
+		columnHelper.accessor((row) => row.carbs, {
+			id: "ingredient-table-carbs",
+			cell: (info) => info.getValue(),
+			header: () => "Carbs",
+		}),
+		columnHelper.accessor((row) => row.protein, {
+			id: "ingredient-table-protein",
+			cell: (info) => info.getValue(),
+			header: () => "Protein",
+		}),
+		columnHelper.accessor((row) => row.fiber, {
+			id: "ingredient-table-fiber",
+			cell: (info) => info.getValue(),
+			header: () => "Fiber",
+		}),
+	];
 
 	const table = useReactTable({
 		data: allIngredients,
@@ -110,53 +137,50 @@ export const PageAllIngredients = () => {
 	return (
 		<>
 			<NavigationHeader pageName="All Ingredients" />
-			<div>
-				Page Ingredients
-				<div className="p-2 overflow-x-auto">
-					<table className="table table-zebra">
-						<thead className="bg-neutral">
-							{table.getHeaderGroups().map((headerGroup) => (
-								<tr key={headerGroup.id}>
-									{headerGroup.headers.map((header) => {
-										return (
-											<th key={header.id} colSpan={header.colSpan} className="align-top">
-												{header.isPlaceholder ? null : (
-													<>
-														<div
-															{...{
-																className: header.column.getCanSort() ? "cursor-pointer select-none" : "",
-																onClick: header.column.getToggleSortingHandler(),
-															}}>
-															{flexRender(header.column.columnDef.header, header.getContext())}
-															{{
-																asc: " 🔼",
-																desc: " 🔽",
-															}[header.column.getIsSorted() as string] ?? null}
+			<div className="p-2 overflow-x-auto">
+				<table className="table table-zebra">
+					<thead className="bg-neutral">
+						{table.getHeaderGroups().map((headerGroup) => (
+							<tr key={headerGroup.id}>
+								{headerGroup.headers.map((header) => {
+									return (
+										<th key={header.id} colSpan={header.colSpan} className="align-top">
+											{header.isPlaceholder ? null : (
+												<>
+													<div
+														{...{
+															className: header.column.getCanSort() ? "cursor-pointer select-none" : "",
+															onClick: header.column.getToggleSortingHandler(),
+														}}>
+														{flexRender(header.column.columnDef.header, header.getContext())}
+														{{
+															asc: " 🔼",
+															desc: " 🔽",
+														}[header.column.getIsSorted() as string] ?? null}
+													</div>
+													{header.column.getCanFilter() ? (
+														<div>
+															<Filter column={header.column} table={table} />
 														</div>
-														{header.column.getCanFilter() ? (
-															<div>
-																<Filter column={header.column} table={table} />
-															</div>
-														) : null}
-													</>
-												)}
-											</th>
-										);
-									})}
-								</tr>
-							))}
-						</thead>
-						<tbody>
-							{table.getRowModel().rows.map((row) => (
-								<tr key={row.id} className="hover">
-									{row.getVisibleCells().map((cell) => (
-										<td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-									))}
-								</tr>
-							))}
-						</tbody>
-					</table>
-				</div>
+													) : null}
+												</>
+											)}
+										</th>
+									);
+								})}
+							</tr>
+						))}
+					</thead>
+					<tbody>
+						{table.getRowModel().rows.map((row) => (
+							<tr key={row.id} className="hover">
+								{row.getVisibleCells().map((cell) => (
+									<td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+								))}
+							</tr>
+						))}
+					</tbody>
+				</table>
 			</div>
 		</>
 	);
@@ -186,7 +210,7 @@ function Filter({ column, table }: { column: Column<any, unknown>; table: Table<
 			<DebouncedInput
 				type="number"
 				min={Number(column.getFacetedMinMaxValues()?.[0] ?? "")}
-				max={Number(column.getFacetedMinMaxValues()?.[1] ?? "")}
+				max={Number(column.getFacetedMinMaxValues()?.[1]) + 1 ?? ""}
 				value={(columnFilterValue as [number, number])?.[1] ?? ""}
 				onChange={(value) => column.setFilterValue((old: [number, number]) => [old?.[0], value])}
 				placeholder={`Max ${column.getFacetedMinMaxValues()?.[1] ? `(${column.getFacetedMinMaxValues()?.[1]})` : ""}`}

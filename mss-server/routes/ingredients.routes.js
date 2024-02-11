@@ -32,4 +32,57 @@ router.get("/all", (req, res, next) => {
 		.catch((error) => next(error));
 });
 
+router.put("/edit/:ingredientId", (req, res, next) => {
+	const { ingredientId } = req.params;
+	const { name, category, quantity, unit, calories, fat, carbs, protein, fiber } = req.body;
+
+	if (name === "") {
+		res.status(400).json({ message: "Please give a name to ingredient" });
+		return;
+	}
+
+	if (category === "" || unit === "") {
+		res.status(400).json({ message: "Please select a valid value for category and unit" });
+		return;
+	}
+
+	Ingredient.findByIdAndUpdate(ingredientId, { name, category, quantity, unit, calories, fat, carbs, protein, fiber }, { new: true })
+		.then((updatedIngredient) => {
+			res.status(201).json({ message: "Ingredient updated!", updatedIngredient });
+		})
+		.catch((error) => {
+			console.log("🚀 ~ router.put ~ error:", error);
+			if (error.code === 11000) {
+				res.status(404).json({ message: "This name is already taken" });
+				return;
+			}
+			res.status(404).json({ message: "Something went wrong!" });
+		});
+});
+
+router.delete("/delete/:ingredientId", (req, res, next) => {
+	const { ingredientId } = req.params;
+
+	Ingredient.findByIdAndDelete(ingredientId)
+		.then((deletedIngredient) => {
+			res.status(200).json({ message: "Ingredient deleted!", deletedIngredient });
+		})
+		.catch((error) => {
+			console.log(error);
+			res.status(404).json({ message: "Ups! The ingredient was not deleted" });
+		});
+});
+
+router.get("/:ingredientId", (req, res, next) => {
+	const { ingredientId } = req.params;
+
+	Ingredient.findById(ingredientId)
+		.then((foundedIngredient) => {
+			res.status(201).json({ message: "Ingredient founded!", foundedIngredient });
+		})
+		.catch((error) => {
+			next(error);
+		});
+});
+
 module.exports = router;

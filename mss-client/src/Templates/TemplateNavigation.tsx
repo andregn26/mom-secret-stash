@@ -23,7 +23,9 @@ const NavLinkItem = ({ to, handleClick, icon, linkName }: NavLinkItemProps) => {
 			<NavLink
 				onClick={() => handleClick(false)}
 				className={({ isActive }) =>
-					isActive ? "group mss-link font-semibold text-primary-content" : "group mss-link font-normal text-primary-content/80"
+					isActive
+						? "group relative flex items-center gap-2.5 rounded-sm px-4 py-2 duration-300 ease-in-out hover:bg-secondary/40 hover:text-secondary-content font-semibold text-secondary-content"
+						: "group relative flex items-center gap-2.5 rounded-sm px-4 py-2 duration-300 ease-in-out hover:bg-primary/40 hover:text-secondary-content font-normal text-secondary-content/80"
 				}
 				to={to}>
 				{icon}
@@ -50,7 +52,7 @@ export const TemplateNavigation = ({ children }: TemplateNavigationProps) => {
 	return (
 		<>
 			<aside
-				className={`absolute left-0 top-0 z-[9999] flex h-screen w-64 lg:w-68  flex-col overflow-y-hidden bg-[#4c0519] text-neutral duration-300 ease-linear lg:static  ${
+				className={`absolute left-0 top-0 z-[9999] flex h-screen w-64 lg:w-68  flex-col overflow-y-hidden bg-secondary text-neutral duration-300 ease-linear lg:static  ${
 					isAsideOpen ? "translate-x-0" : "lg:translate-x-0 translate-x-[-100%] "
 				}`}>
 				{/* HEADER */}
@@ -63,7 +65,7 @@ export const TemplateNavigation = ({ children }: TemplateNavigationProps) => {
 				<div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear">
 					<nav className="mt-5 py-4 px-4 lg:mt-9 lg:px-6">
 						<div>
-							<h3 className="mb-4 ml-4 text-sm font-semibold text-primary-content/40">MENU</h3>
+							<h3 className="mb-4 ml-4 text-sm font-semibold text-primary-content/50">MENU</h3>
 							<ul className="mb-6 flex flex-col gap-1.5">
 								<NavLinkItem to="/profile" linkName="Profile" handleClick={setIsAsideOpen} icon={<User theme="outline" size="18" />} />
 								<NavLinkItem to="/explore" linkName="Explore" handleClick={setIsAsideOpen} icon={<ChefHatOne theme="outline" size="18" />} />
@@ -89,7 +91,7 @@ export const TemplateNavigation = ({ children }: TemplateNavigationProps) => {
 							</ul>
 						</div>
 						<div>
-							<h3 className="mb-4 ml-4 text-sm font-semibold text-primary-content/40">CREATE</h3>
+							<h3 className="mb-4 ml-4 text-sm font-semibold text-primary-content/50">CREATE</h3>
 							<ul className="mb-6 flex flex-col gap-1.5">
 								<NavLinkItem
 									to={`/recipe/create`}

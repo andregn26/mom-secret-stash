@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-	mode: 'jit',
+	mode: "jit",
 	content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
 	theme: {
 		extend: {
@@ -29,8 +29,12 @@ export default {
 			{
 				light: {
 					...require("daisyui/src/theming/themes")["light"],
-					primary: "#e11d48",
-					"primary-content": "#ffe4e6",
+					primary: "#5aaf5a",
+					secondary: "#76c676",
+					"secondary-content": "#020803",
+					"primary-content": "#f2fbf2",
+					accent: "#552C57",
+					"accent-content": "#F6EEFA",
 					neutral: "#fff",
 					"neutral-content": "#0a0a0a",
 					"base-100": "#fafafa",
@@ -40,7 +44,7 @@ export default {
 					info: "#26cdff",
 					success: "#00cf6b",
 					warning: "#ff7b00",
-					error: "#ff0069",
+					error: "#EB5160",
 
 					"--rounded-btn": "0.2rem", // border radius rounded-btn utility class, used in buttons and similar element
 				},
