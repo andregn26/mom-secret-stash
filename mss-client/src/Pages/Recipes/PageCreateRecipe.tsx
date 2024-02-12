@@ -1,22 +1,17 @@
 import { ButtonSubmit } from "@/Components/Atoms/ButtonSubmit";
-import { postCreateRecipe, getAllFoodTypes, postUpload } from "@/api";
+import { postCreateRecipe, getAllFoodTypes, postUpload, getAllIngredients } from "@/api";
+import Select from "react-select";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "@/context/auth.context";
-import { Ingredient, Recipe } from "@/types/recipeTypes";
+import { IngredientToAdd } from "@/types/recipeTypes";
 import { NavigationHeader } from "@/Components/Molecules/NavigationHeader";
 import { Instruction } from "@/types/recipeTypes";
 import { Delete } from "@icon-park/react";
-
-type FoodType = {
-	createdAt: string;
-	name: string;
-	recipes: Recipe[];
-	updatedAt: string;
-	_id: string;
-};
+import { Ingredient } from "@/types/ingredientTypes";
+import { FoodType } from "@/types/foodTypes";
 
 export const PageCreateRecipe = () => {
 	const [name, setName] = useState<string>("");
@@ -26,17 +21,20 @@ export const PageCreateRecipe = () => {
 		step: 1,
 		instruction: "",
 	});
-	const [allIngredients, setAllIngredients] = useState<Ingredient[]>([]);
-
-	const [newIngredient, setNewIngredient] = useState<Ingredient>({
-		ingredient: "",
-		quantity: 0,
-		measure: " ",
+	const [allIngredientsFetched, setAllIngredientsFetched] = useState<Ingredient[]>([]);
+	const [allIngredients, setAllIngredients] = useState<IngredientToAdd[]>([]);
+	console.log("🚀 ~ PageCreateRecipe ~ allIngredients:", allIngredients);
+	const [newIngredient, setNewIngredient] = useState<IngredientToAdd>({
+		ingredientId: "",
+		name: "",
+		quantityForRecipe: 0,
+		unit: 0,
 	});
 	const [allFoodTypes, setAllFoodTypes] = useState<FoodType[]>([]);
 	const [foodTypeId, setFoodTypeId] = useState<string>("");
 	const [prepTime, setPrepTime] = useState<number>(60);
 	const [servings, setServings] = useState<number>(4);
+	const [tools, SetTools] = useState<string[]>([]);
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const [fileImg, setFileImg] = useState<any>(null);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -45,10 +43,31 @@ export const PageCreateRecipe = () => {
 		getAllFoodTypes().then((foodTypesFetched) => {
 			setAllFoodTypes(foodTypesFetched.data.foodType);
 		});
+		getAllIngredients()
+			.then((ingredientsFetched) => {
+				setAllIngredientsFetched(ingredientsFetched.data.foundedIngredients);
+			})
+			.catch((error) => {
+				toast.error(error.message);
+			});
 	}, []);
 
 	const navigate = useNavigate();
 	const { user } = useContext(AuthContext);
+
+	const optionsFoodType = allFoodTypes.map((foodType) => {
+		return { value: foodType._id, label: foodType.name };
+	});
+
+	const optionsTools = [
+		{ value: "Airfryer", label: "Airfryer" },
+		{ value: "Oven", label: "Oven" },
+		{ value: "Slow Cook", label: "Slow Cook" },
+	];
+
+	const optionsIngredients = allIngredientsFetched.map((ingredient) => {
+		return { value: ingredient._id, label: `${ingredient.name} | ${ingredient.unit}`, unit: ingredient.unit };
+	});
 
 	const handleSelectFileImg = (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (!e.target.files) {
@@ -59,12 +78,6 @@ export const PageCreateRecipe = () => {
 
 	const handleInstructionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setNewInstruction((prev) => {
-			return { ...prev, [e.target.id]: e.target.value };
-		});
-	};
-
-	const handleIngredientChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setNewIngredient((prev) => {
 			return { ...prev, [e.target.id]: e.target.value };
 		});
 	};
@@ -92,16 +105,19 @@ export const PageCreateRecipe = () => {
 
 	const handleAddIngredient = (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault();
-		if (newIngredient.ingredient === "" || !newIngredient.quantity || newIngredient.measure === " ") {
-			toast.error("Please fill the new ingredient with a name, quantity and measure unit");
+		if (newIngredient.ingredientId === "" || !newIngredient.name || !newIngredient.unit) {
+			toast.error("Something went wrong!");
 			return;
 		}
 		if (newIngredient) {
 			const updatedAllIngredients = [...allIngredients];
 			updatedAllIngredients.push(newIngredient);
 			setAllIngredients(updatedAllIngredients);
-			setNewIngredient({ ingredient: "", quantity: 0, measure: "" });
 		}
+	};
+
+	const handleSelectNewIngredient = (ingredient) => {
+		setNewIngredient((prev) => ({ ...prev, ingredientId: ingredient.value, name: ingredient.label, unit: ingredient.unit }));
 	};
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -119,11 +135,12 @@ export const PageCreateRecipe = () => {
 					description,
 					createdBy: user!._id,
 					instructions: allInstructions,
-					ingredients: allIngredients,
+					ingredients: allIngredients.map(({ ingredientId, quantityForRecipe }) => ({ ingredientId, quantityForRecipe })),
 					foodType: foodTypeId,
 					prepTime,
 					servings,
 					imageUrl: imageUrl,
+					tools,
 				});
 			})
 			.then((res) => {
@@ -191,80 +208,74 @@ export const PageCreateRecipe = () => {
 								/>
 							</label>
 						</div>
-						{/* FOOD TYPE */}
-						<div id="CREATE-RECIPE-FOOD-TYPE">
-							<label className="form-control w-full">
-								<select className="select" onChange={(e) => setFoodTypeId(e.target.value)} required defaultValue={""}>
-									<option disabled value={""}>
-										Pick one food type
-									</option>
-									{allFoodTypes.map((foodType) => {
-										return (
-											<option key={foodType._id} value={foodType._id}>
-												{foodType.name}
-											</option>
-										);
-									})}
-								</select>
-							</label>
-						</div>
+						<Select
+							placeholder="Pick one food type"
+							onChange={(option) => setFoodTypeId(option!.value)}
+							classNames={{
+								control: ({ isFocused }) =>
+									isFocused
+										? " w-full !bg-base-100 !border-2 !border-base-300  !h-12 !cursor-pointer !shadow-none"
+										: "!border-2 !border-transparent !bg-base-100 !h-12",
+								menu: () => " w-full border_red_2 text-sm rounded-sm",
+								placeholder: () => "text-sm !text-neutral-content",
+								singleValue: () => "text-sm !text-neutral-content",
+							}}
+							options={optionsFoodType}
+						/>
+						{/* TOOLS */}
+						<Select
+							placeholder="Select the tools"
+							onChange={(e) => SetTools(e.map((el) => el.value))}
+							isMulti
+							classNames={{
+								control: ({ isFocused }) =>
+									isFocused
+										? " w-full !bg-base-100 !border-2 !border-base-300  !h-12 !cursor-pointer !shadow-none"
+										: "!border-2 !border-transparent !bg-base-100 !h-12",
+								menu: () => " w-full border_red_2 text-sm rounded-sm",
+								placeholder: () => "text-sm !text-neutral-content",
+								multiValue: () => "text-sm !text-neutral-content",
+							}}
+							options={optionsTools}
+						/>
 					</div>
 					{/* COL 2 */}
 					<div className="flex flex-col lg:col-span-2 gap-8">
 						{/* NEW INGREDIENT */}
-						<div className="flex flex-col w-full">
+						<div id="CREATE-RECIPE-INGREDIENTS" className="flex flex-col gap-2 w-full">
 							<h3 className="font-semibold text-lg text-primary">Ingredients</h3>
-							<div className="flex flex-col xl:flex-row gap-4 xl:items-end">
+							<div>
 								<label className="form-control w-full">
 									<div className="label">
-										<span className="label-text">Ingredient</span>
+										<span className="label-text truncate">Name</span>
 									</div>
-									<input
-										type="text"
-										placeholder="Potato"
-										className="input w-full"
-										value={newIngredient.ingredient}
-										onChange={(e) => handleIngredientChange(e)}
-										id={"ingredient"}
+									<Select
+										placeholder="Select ingredients"
+										onChange={(ingredient) => handleSelectNewIngredient(ingredient)}
+										classNames={{
+											control: ({ isFocused }) =>
+												isFocused
+													? " w-full !bg-base-100 !border-2 !border-base-300  !h-12 !cursor-pointer !shadow-none"
+													: "!border-2 !border-transparent !bg-base-100 !h-12",
+											menu: () => " w-full border_red_2 text-sm rounded-sm",
+											placeholder: () => "text-sm !text-neutral-content",
+											singleValue: () => "text-sm !text-neutral-content",
+										}}
+										options={optionsIngredients}
 									/>
 								</label>
-								<div className="flex gap-4">
-									<label className="form-control w-full">
-										<div className="label">
-											<span className="label-text">Quantity</span>
-										</div>
-										<input
-											type="number"
-											min={0}
-											placeholder="200"
-											className="input w-full"
-											value={newIngredient.quantity}
-											onChange={(e) => handleIngredientChange(e)}
-											id={"quantity"}
-										/>
-									</label>
-									<label className="form-control w-full">
-										<div className="label">
-											<span className="label-text">Unit</span>
-										</div>
-										<select
-											className="select"
-											defaultValue={""}
-											onChange={(e) => setNewIngredient((prev) => ({ ...prev, measure: e.target.value }))}
-											required>
-											<option disabled value={""}>
-												Choose the unit
-											</option>
-											<option value={"whole"}>Whole</option>
-											<option value={"cup"}>Cup</option>
-											<option value={"gram"}>Gram</option>
-											<option value={"ml"}>Milliliter</option>
-											<option value={"l"}>liter</option>
-											<option value={"tbsp"}>Tablespoon</option>
-											<option value={"tsp"}>Teaspoon</option>
-										</select>
-									</label>
-								</div>
+								<label className="form-control w-full">
+									<div className="label">
+										<span className="label-text truncate">Quantity</span>
+									</div>
+									<input
+										type="number"
+										value={newIngredient.quantityForRecipe}
+										min={0}
+										onChange={(e) => setNewIngredient((prev) => ({ ...prev, quantityForRecipe: Number(e.target.value) }))}
+										className="input w-full"
+									/>
+								</label>
 								<button className="btn btn-primary btn-outline" onClick={(e) => handleAddIngredient(e)}>
 									+
 								</button>
@@ -275,7 +286,7 @@ export const PageCreateRecipe = () => {
 								) : (
 									<>
 										<ol className="flex flex-col p-4 rounded-sm gap-4 w-full">
-											{allIngredients.map((elem, index) => {
+											{allIngredients.map((ingredient, index) => {
 												return (
 													<li key={index}>
 														<div className="border-b w-full flex items-center gap-4 pb-1">
@@ -283,10 +294,7 @@ export const PageCreateRecipe = () => {
 																<Delete theme="outline" size="12" />
 															</button>
 															<p className="text-sm">
-																{elem.ingredient} -{" "}
-																<span>
-																	{elem.quantity} {elem.measure}
-																</span>
+																{ingredient.name} - <span>{ingredient.quantityForRecipe}</span>
 															</p>
 														</div>
 													</li>
@@ -302,7 +310,7 @@ export const PageCreateRecipe = () => {
 						<div className="flex flex-col w-full">
 							<h3 className="font-semibold text-lg text-primary">Instructions</h3>
 							<div className="flex flex-col xl:flex-row gap-4 xl:items-end">
-								<label className="form-control w-full max-w-24">
+								<label className="form-control w-full xl:max-w-24">
 									<div className="label">
 										<span className="label-text">Step</span>
 									</div>
