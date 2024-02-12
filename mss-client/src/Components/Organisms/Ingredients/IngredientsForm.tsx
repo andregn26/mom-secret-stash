@@ -95,11 +95,11 @@ export const IngredientsForm = ({
 					<div className="label">
 						<span className="label-text">Choose the unit</span>
 					</div>
-					<select className="select" id="ingredient-unit" required defaultValue={unit} onChange={(e) => setUnit(e.target.value)}>
-						{selectUnit.map((unit, index) => {
+					<select className="select" id="ingredient-unit" required value={unit} onChange={(e) => setUnit(e.target.value)}>
+						{selectUnit.map((oneUnit, index) => {
 							return (
-								<option key={index} value={unit}>
-									{unit}
+								<option key={index} value={oneUnit}>
+									{oneUnit}
 								</option>
 							);
 						})}

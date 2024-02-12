@@ -25,6 +25,10 @@ const userSchema = new Schema(
 			type: String,
 			default: "https://res.cloudinary.com/dxxmsbtrt/image/upload/v1650390383/MovieScreen/Users/avatar-profile_af3anp.webp",
 		},
+		isUserAdmin: {
+			type: Boolean,
+			default: false,
+		},
 	},
 	{
 		// this second object adds extra properties: `createdAt` and `updatedAt`

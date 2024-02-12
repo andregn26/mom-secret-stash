@@ -5,6 +5,7 @@ import { NavigationHeader } from "@/Components/Molecules/NavigationHeader";
 import { IngredientsForm } from "@/Components/Organisms/Ingredients/IngredientsForm";
 import toast from "react-hot-toast";
 import axios from "axios";
+import { Ingredient } from "@/types/ingredientTypes";
 
 export const PageEditIngredient = () => {
 	const navigate = useNavigate();
@@ -27,7 +28,7 @@ export const PageEditIngredient = () => {
 			}
 			try {
 				const response = await getIngredient(ingredientId);
-				const fetchedIngredient = response.data.foundedIngredient;
+				const fetchedIngredient: Ingredient = response.data.foundedIngredient;
 				if (fetchedIngredient) {
 					setName(fetchedIngredient.name);
 					setCategory(fetchedIngredient.category);

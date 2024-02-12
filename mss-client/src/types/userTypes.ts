@@ -17,6 +17,7 @@ export type User = {
 	email: string;
 	password: string;
 	profileImg?: string;
+	isUserAdmin: boolean;
 	_id: string;
 	exp: number;
 	iat: number;

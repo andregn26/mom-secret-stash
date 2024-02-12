@@ -1,7 +1,8 @@
 const router = require("express").Router();
 const Ingredient = require("../models/Ingredient.model");
+const { isAuthenticated, isUserAdmin } = require("../middleware/jwt.middleware.js");
 
-router.post("/create", (req, res, next) => {
+router.post("/create", isAuthenticated, isUserAdmin, (req, res, next) => {
 	const { name, category, quantity, unit, calories, fat, carbs, protein, fiber } = req.body;
 
 	if (name === "") {
@@ -32,7 +33,7 @@ router.get("/all", (req, res, next) => {
 		.catch((error) => next(error));
 });
 
-router.put("/edit/:ingredientId", (req, res, next) => {
+router.put("/edit/:ingredientId", isAuthenticated, isUserAdmin, (req, res, next) => {
 	const { ingredientId } = req.params;
 	const { name, category, quantity, unit, calories, fat, carbs, protein, fiber } = req.body;
 
@@ -51,16 +52,16 @@ router.put("/edit/:ingredientId", (req, res, next) => {
 			res.status(201).json({ message: "Ingredient updated!", updatedIngredient });
 		})
 		.catch((error) => {
-			console.log("🚀 ~ router.put ~ error:", error);
 			if (error.code === 11000) {
 				res.status(404).json({ message: "This name is already taken" });
 				return;
 			}
+
 			res.status(404).json({ message: "Something went wrong!" });
 		});
 });
 
-router.delete("/delete/:ingredientId", (req, res, next) => {
+router.delete("/delete/:ingredientId", isAuthenticated, isUserAdmin, (req, res, next) => {
 	const { ingredientId } = req.params;
 
 	Ingredient.findByIdAndDelete(ingredientId)

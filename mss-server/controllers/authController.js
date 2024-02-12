@@ -78,9 +78,9 @@ exports.postLogin = async (req, res, next) => {
 			const passwordCorrect = bcrypt.compareSync(password, foundUser.password);
 			if (passwordCorrect) {
 				// Deconstruct the user object to omit the password
-				const { _id, email, firstName, lastName, profileImg } = foundUser;
+				const { _id, email, firstName, lastName, profileImg, isUserAdmin } = foundUser;
 				// Create an object that will be set as the token payload
-				const payload = { _id, email, firstName, lastName, profileImg };
+				const payload = { _id, email, firstName, lastName, profileImg, isUserAdmin };
 				// Create a JSON Web Token and sign it
 				const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
 					algorithm: "HS256",

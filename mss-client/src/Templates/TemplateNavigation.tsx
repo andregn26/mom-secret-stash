@@ -5,6 +5,7 @@ import { AuthContext } from "@/context/auth.context";
 import { ButtonMenu } from "@/Components/Atoms/ButtonMenu";
 import { NavigationProfile } from "@/Components/Organisms/NavigationProfile";
 import { CloseSmall, User, VegetableBasket, Like, FileAddition, ListAdd, Cook, ChefHatOne } from "@icon-park/react";
+import { Logo } from "@/Components/Atoms/Logo";
 
 type TemplateNavigationProps = {
 	children?: React.ReactNode;
@@ -57,7 +58,9 @@ export const TemplateNavigation = ({ children }: TemplateNavigationProps) => {
 				}`}>
 				{/* HEADER */}
 				<div className="flex items-center justify-between gap-2 px-4 py-4 lg:py-6">
-					<NavLink to={"/"}>LOGO</NavLink>
+					<NavLink to={"/"}>
+						<Logo />
+					</NavLink>
 					<button className="lg:hidden" onClick={() => setIsAsideOpen(false)}>
 						<CloseSmall theme="outline" size="24" className="text-neutral" />
 					</button>
