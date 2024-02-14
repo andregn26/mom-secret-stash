@@ -18,6 +18,7 @@ export type User = {
 	password: string;
 	profileImg?: string;
 	isUserAdmin: boolean;
+	createdRecipesCount: number;
 	_id: string;
 	exp: number;
 	iat: number;
