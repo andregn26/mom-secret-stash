@@ -49,7 +49,6 @@ export const IngredientsForm = ({
 	isLoading,
 	btnText,
 }: IngredientsFormProps) => {
-	console.log("🚀 ~ category:", category);
 	return (
 		<form onSubmit={(e) => onSubmit(e)} className="p-4 md:p-6 xl:p-8 2xl:p-10 bg-neutral shadow-sm border w-full rounded-md flex flex-col gap-4">
 			{/* NAME, CATEGORY  */}

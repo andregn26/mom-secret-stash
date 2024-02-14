@@ -29,7 +29,6 @@ export const PageCreateIngredients = () => {
 			setCarbs(0);
 			setProtein(0);
 			setFiber(0);
-			console.log(res);
 			toast.success(res.data.message);
 		} catch (error: unknown) {
 			if (axios.isAxiosError(error)) {

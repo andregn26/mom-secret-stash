@@ -6,6 +6,7 @@ router.get("/:userId/my-recipes", isAuthenticated, (req, res, next) => {
 	const userId = req.params.userId;
 	Recipe.find({ createdBy: { $eq: userId } })
 		.populate("createdBy")
+		.populate("foodType")
 		.then((foundRecipes) => {
 			res.status(200).json({ message: "all good!", recipes: foundRecipes });
 		});

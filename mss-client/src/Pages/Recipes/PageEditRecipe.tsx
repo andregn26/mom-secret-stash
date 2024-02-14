@@ -1,56 +1,206 @@
-import { useState } from "react"
-import { getRecipe, putEditRecipe } from '@/api'
-import { useEffect } from 'react'
-import { useParams } from 'react-router-dom'
-import { FormContainer } from "@/Components/Organisms/FormContainer"
-import { InputText } from "@/Components/Atoms/InputText.old"
-import { ButtonSubmit } from "@/Components/Atoms/ButtonSubmit"
-import toast from "react-hot-toast"
-
-
+import { useState, useContext } from "react";
+import { getRecipe, putEditRecipe, getAllIngredients, getAllFoodTypes, postUpload } from "@/api";
+import { useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import toast from "react-hot-toast";
+import { NavigationHeader } from "@/Components/Molecules/NavigationHeader";
+import { RecipeForm } from "@/Components/Organisms/Recipes/RecipeForm";
+import { Instruction, IngredientToAdd } from "@/types/recipeTypes";
+import { Ingredient } from "@/types/ingredientTypes";
+import { FoodType } from "@/types/foodTypes";
+import { AuthContext } from "@/context/auth.context";
+import axios from "axios";
 
 export const PageEditRecipe = () => {
-    const { recipeId } = useParams()
-    const [name, setName] = useState<string>("")
-    const [description, setDescription] = useState<string>("")
-    const [isLoading, setIsLoading] = useState<boolean>(false)
+	const { recipeId } = useParams();
+	const navigate = useNavigate();
+	const { user } = useContext(AuthContext);
+	// STATE - PRIMITIVE VALUES
+	const [fileImg, setFileImg] = useState<File | null>(null);
+	const [fetchedImgLink, setFetchedImgLink] = useState<string>("");
+	const [editedName, setEditedName] = useState<string>("");
+	const [editedDescription, setEditedDescription] = useState<string>("");
+	const [editedPrepTime, setEditedPrepTime] = useState<number>(60);
+	const [editedServings, setEditedServings] = useState<number>(4);
+	const [isLoading, setIsLoading] = useState<boolean>(false);
+	// STATE - OBJECT AND ARRAY VALUES
+	const [editedTools, setEditedTools] = useState<string[]>([]);
+	const [allInstructions, setAllInstructions] = useState<Instruction[]>([]);
+	console.log("🚀 ~ PageEditRecipe ~ allInstructions:", allInstructions);
+	const [newInstruction, setNewInstruction] = useState<Instruction>({
+		step: 1,
+		instruction: "",
+	});
+	const [allIngredientsFetched, setAllIngredientsFetched] = useState<Ingredient[]>([]);
+	const [allIngredients, setAllIngredients] = useState<IngredientToAdd[]>([]);
+	const [newIngredient, setNewIngredient] = useState<IngredientToAdd>({
+		ingredientId: "",
+		name: "",
+		quantityForRecipe: 0,
+		unit: 0,
+	});
+	const [allFoodTypesFromDB, setAllFoodTypesFromDB] = useState<FoodType[]>([]);
+	const [foodTypeId, setFoodTypeId] = useState<string>("");
 
-    useEffect(() => {
-        setIsLoading(true)
-        getRecipe(recipeId!).then((fetchedRecipe) => {
-            return fetchedRecipe.data.recipeFounded
-        }).then((recipeFound) => {
-            setName(recipeFound.name)
-            setDescription(recipeFound.description)
-        }).catch((error) => {
-            console.log(error)
-        }).finally(() => {
-            setIsLoading(false)
-        })
-    }, [recipeId])
+	useEffect(() => {
+		const fetchData = async () => {
+			setIsLoading(true);
+			try {
+				if (!recipeId) {
+					throw Error;
+				}
+				const fetchedRecipe = await getRecipe(recipeId);
+				const recipeFound = fetchedRecipe.data.recipeFounded;
+				console.log("🚀 ~ .then ~ recipeFound:", recipeFound);
+				setFetchedImgLink(recipeFound.imageUrl);
+				setEditedName(recipeFound.name);
+				setEditedDescription(recipeFound.description);
+				setEditedPrepTime(recipeFound.prepTime);
+				setEditedServings(recipeFound.servings);
+				setEditedTools(recipeFound.tools);
+				setFoodTypeId(recipeFound.foodType._id);
+				setAllInstructions(recipeFound.instructions);
+				const ingredientsFetched = await getAllIngredients();
+				setAllIngredientsFetched(ingredientsFetched.data.foundedIngredients);
+				const foodTypesFetched = await getAllFoodTypes();
+				setAllFoodTypesFromDB(foodTypesFetched.data.foodType);
+			} catch (error: unknown) {
+				if (axios.isAxiosError(error)) {
+					toast.error(error.message);
+				}
+				console.log(error);
+			} finally {
+				setIsLoading(false);
+			}
+		};
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        setIsLoading(true)
-        e.preventDefault()
-        putEditRecipe(recipeId!, { name, description })
-            .then((editedRecipe) => {
-                console.log("🚀 ~ putEditRecipe ~ editedRecipe:", editedRecipe)
-                toast.success(editedRecipe.data.message)
-            })
-            .catch((error) => {
-                toast.error(error.response.data.message)
-                console.log(error)
-            })
-            .finally(() => setIsLoading(false))
-    }
+		fetchData();
+	}, [recipeId]);
 
-    return (
-        <FormContainer title='Edit recipe'>
-            <form onSubmit={(e) => handleSubmit(e)} className='py-8 text-base leading-6 space-y-4 text-gray-700 sm:text-lg sm:leading-7 flex flex-col gap-2'>
-                <InputText value={name} id='title' type='text' label='Recipe name' handleChange={(e) => setName(e.target.value)} />
-                <InputText value={description} id='title' type='text' label='Description' handleChange={(e) => setDescription(e.target.value)} />
-                <ButtonSubmit status={isLoading ? "submitting" : "idle"} buttonText='Create recipe' />
-            </form>
-        </FormContainer>
-    )
-}
+	const handleSelectFileImg = (e: React.ChangeEvent<HTMLInputElement>) => {
+		if (e.target.files) {
+			setFileImg(e.target.files[0]);
+		}
+	};
+
+	const optionsIngredients = allIngredientsFetched.map((ingredient) => {
+		return { value: ingredient._id, label: `${ingredient.name} | ${ingredient.unit}`, unit: ingredient.unit };
+	});
+
+	const handleInstructionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		setNewInstruction((prev) => {
+			return { ...prev, [e.target.id]: e.target.value };
+		});
+	};
+
+	const handleAddInstruction = (e: React.MouseEvent<HTMLButtonElement>) => {
+		e.preventDefault();
+		const updatedAllInstructions = [...allInstructions];
+		updatedAllInstructions.push(newInstruction);
+		setAllInstructions(updatedAllInstructions);
+		setNewInstruction((prev) => ({
+			step: prev.step + 1,
+			instruction: "",
+		}));
+	};
+
+	const handleDeleteInstruction = (e: React.MouseEvent<HTMLButtonElement>, index: number) => {
+		e.preventDefault();
+		setAllInstructions((prev) => prev.filter((elem) => prev.indexOf(elem) !== index));
+	};
+
+	const handleIngredientDelete = (e: React.MouseEvent<HTMLButtonElement>, index: number) => {
+		e.preventDefault();
+		setAllIngredients((prev) => prev.filter((ingredient) => prev.indexOf(ingredient) !== index));
+	};
+
+	const handleAddIngredient = (e: React.MouseEvent<HTMLButtonElement>) => {
+		e.preventDefault();
+		if (newIngredient.ingredientId === "" || !newIngredient.name || !newIngredient.unit) {
+			toast.error("Something went wrong!");
+			return;
+		}
+		if (newIngredient) {
+			const updatedAllIngredients = [...allIngredients];
+			updatedAllIngredients.push(newIngredient);
+			setAllIngredients(updatedAllIngredients);
+		}
+	};
+
+	const handleSelectNewIngredient = (ingredient: { value: string; label: string; unit: number }) => {
+		setNewIngredient((prev) => ({ ...prev, ingredientId: ingredient.value, name: ingredient.label, unit: ingredient.unit }));
+	};
+
+	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		setIsLoading(true);
+		try {
+			const data = new FormData();
+			data.append("my_file", fileImg as Blob);
+			const imgData = await postUpload(data);
+			const imageUrl = imgData.data.url;
+			if (!recipeId) {
+				throw Error;
+			}
+			const res = await putEditRecipe(recipeId, {
+				// createdBy: user!._id,
+				imageUrl: imageUrl,
+				name: editedName,
+				description: editedDescription,
+				prepTime: editedPrepTime,
+				servings: editedServings,
+				instructions: allInstructions,
+				ingredients: allIngredients.map(({ ingredientId, quantityForRecipe }) => ({ ingredientId, quantityForRecipe })),
+				foodType: foodTypeId,
+				tools: editedTools,
+			});
+			console.log("🚀 ~ .then ~ res:", res);
+			toast.success(res.data.message);
+			navigate(`/${user!._id}/my-recipes`);
+		} catch (error: unknown) {
+			if (axios.isAxiosError(error)) {
+				toast.error(error.response?.data.message);
+			}
+			console.log(error);
+		} finally {
+			setIsLoading(false);
+		}
+	};
+	return (
+		<>
+			<NavigationHeader pageName="Edit Recipe" />
+			<RecipeForm
+				isLoading={isLoading}
+				type="edit"
+				onSubmit={handleSubmit}
+				onChangeFile={handleSelectFileImg}
+				fetchedImgLink={fetchedImgLink}
+				name={editedName}
+				setName={setEditedName}
+				description={editedDescription}
+				setDescription={setEditedDescription}
+				prepTime={editedPrepTime}
+				setPrepTime={setEditedPrepTime}
+				servings={editedServings}
+				setServings={setEditedServings}
+				allFoodTypesFromDB={allFoodTypesFromDB}
+				setFoodTypeId={setFoodTypeId}
+				foodTypeId={foodTypeId}
+				setTools={setEditedTools}
+				tools={editedTools}
+				optionsIngredients={optionsIngredients}
+				newIngredient={newIngredient}
+				setNewIngredient={setNewIngredient}
+				allIngredients={allIngredients}
+				newInstruction={newInstruction}
+				allInstructions={allInstructions}
+				handleInstructionChange={handleInstructionChange}
+				handleSelectNewIngredient={handleSelectNewIngredient}
+				handleAddIngredient={handleAddIngredient}
+				handleIngredientDelete={handleIngredientDelete}
+				handleAddInstruction={handleAddInstruction}
+				handleDeleteInstruction={handleDeleteInstruction}
+			/>
+		</>
+	);
+};

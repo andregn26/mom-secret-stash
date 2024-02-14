@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { Link } from "react-router-dom";
 
 type ButtonDeleteProps = {
+	btnClassName?: string;
 	btnTextOrElement: string | React.ReactElement;
 	nameOfItemToDelete: string;
 	handleDelete: () => void;
@@ -9,16 +10,21 @@ type ButtonDeleteProps = {
 	editLink?: string;
 };
 
-export const ButtonDelete = ({ btnTextOrElement, nameOfItemToDelete, handleDelete, renderComponent = "default", editLink }: ButtonDeleteProps) => {
+export const ButtonDelete = ({
+	btnClassName,
+	btnTextOrElement,
+	nameOfItemToDelete,
+	handleDelete,
+	renderComponent = "default",
+	editLink,
+}: ButtonDeleteProps) => {
 	const modal = useRef<HTMLDialogElement>(null);
 
 	switch (renderComponent) {
 		case "allIngredients":
 			return (
 				<>
-					<button className="" onClick={() => modal.current?.showModal()}>
-						{btnTextOrElement}
-					</button>
+					<button onClick={() => modal.current?.showModal()}>{btnTextOrElement}</button>
 					<dialog ref={modal} className="modal">
 						<div className="modal-box">
 							<h3 className="font-bold text-lg">Atention!</h3>
@@ -49,7 +55,7 @@ export const ButtonDelete = ({ btnTextOrElement, nameOfItemToDelete, handleDelet
 		case "deleteButton":
 			return (
 				<>
-					<button className="btn" onClick={() => modal.current?.showModal()}>
+					<button className={`${btnClassName}`} onClick={() => modal.current?.showModal()}>
 						{btnTextOrElement}
 					</button>
 					<dialog ref={modal} className="modal">

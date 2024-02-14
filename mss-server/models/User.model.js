@@ -29,12 +29,24 @@ const userSchema = new Schema(
 			type: Boolean,
 			default: false,
 		},
+		createdRecipesCount: {
+			type: Number,
+			default: 0,
+		},
 	},
 	{
 		// this second object adds extra properties: `createdAt` and `updatedAt`
 		timestamps: true,
 	}
 );
+
+// Middleware to update createdRecipesCount when a recipe is created
+// userSchema.post("save", async function (user) {
+// 	const Recipe = require("./Recipe.model"); // Import Recipe model
+// 	const count = await Recipe.countDocuments({ createdBy: user._id });
+// 	user.createdRecipesCount = count;
+// 	await user.save();
+// });
 
 const User = model("User", userSchema);
 
