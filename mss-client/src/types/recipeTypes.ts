@@ -15,7 +15,7 @@ export type Recipe = {
 export type RecipeToCreate = {
 	name: string;
 	description: string;
-	ingredients: IngredientToAdd[];
+	ingredients: { ingredient: string; quantityForRecipe: number }[];
 	instructions: Instruction[];
 	prepTime: number;
 	servings: number;
@@ -40,8 +40,13 @@ export type RecipeToEdit = {
 
 export type IngredientToAdd = {
 	ingredientId: string;
+	quantityForRecipe: number;
+};
+
+export type NewIngredient = {
+	ingredientId: string;
+	quantityForRecipe: number;
 	name?: string;
-	quantityForRecipe?: number;
 	unit?: number;
 };
 

@@ -27,7 +27,7 @@ function App() {
 						<Route path={"login"} element={<PageLogin />} />
 						<Route path={"register"} element={<PageRegister />} />
 						<Route
-							path={"profile"}
+							path={"profile/:userId"}
 							element={
 								<PrivateRoute>
 									<PageProfile />

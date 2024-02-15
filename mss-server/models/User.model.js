@@ -25,6 +25,9 @@ const userSchema = new Schema(
 			type: String,
 			default: "https://res.cloudinary.com/dxxmsbtrt/image/upload/v1650390383/MovieScreen/Users/avatar-profile_af3anp.webp",
 		},
+		aboutMe: {
+			type: String,
+		},
 		isUserAdmin: {
 			type: Boolean,
 			default: false,

@@ -70,7 +70,7 @@ export const TemplateNavigation = ({ children }: TemplateNavigationProps) => {
 						<div>
 							<h3 className="mb-4 ml-4 text-sm font-semibold text-primary-content/50">MENU</h3>
 							<ul className="mb-6 flex flex-col gap-1.5">
-								<NavLinkItem to="/profile" linkName="Profile" handleClick={setIsAsideOpen} icon={<User theme="outline" size="18" />} />
+								<NavLinkItem to={`/profile/${user?._id}`} linkName="Profile" handleClick={setIsAsideOpen} icon={<User theme="outline" size="18" />} />
 								<NavLinkItem to="/explore" linkName="Explore" handleClick={setIsAsideOpen} icon={<ChefHatOne theme="outline" size="18" />} />
 								<NavLinkItem
 									to={`/${user?._id}/my-recipes`}

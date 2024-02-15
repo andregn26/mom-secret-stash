@@ -16,6 +16,11 @@ export const postLogin = (user: UserLogin) => {
 export const getVerify = (storedToken: string) => {
 	return axios.get(`${BASE_URL}/auth/verify`, { headers: { Authorization: `Bearer ${storedToken}` } });
 };
+export const getUserDetails = (userId: string) => {
+	return axios.get(`${BASE_URL}/profile/${userId}`, {
+		headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` },
+	});
+};
 
 export const postUpload = (data: FormData) => {
 	return axios.post(`${BASE_URL}/upload`, data);

@@ -13,6 +13,7 @@ export const PageMyRecipes = () => {
 	const [renderAfterDelete, setRenderAfterDelete] = useState<boolean>(false);
 	const [allRecipesFromUser, setAllRecipesFromUser] = useState<Recipe[]>([]);
 	const { userId } = useParams();
+
 	useEffect(() => {
 		setRenderAfterDelete(false);
 		if (userId === user?._id) {
@@ -74,7 +75,7 @@ export const PageMyRecipes = () => {
 							</div>
 						))}
 					</div>
-					<pre className=" text-xs text-wrap">{JSON.stringify(allRecipesFromUser[0], null, 2)}</pre>
+					<pre className=" text-xs text-wrap">{JSON.stringify(allRecipesFromUser, null, 2)}</pre>
 				</>
 			) : (
 				<p>You don't have permission tho access this page</p>

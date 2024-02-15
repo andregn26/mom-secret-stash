@@ -103,11 +103,3 @@ exports.getVerify = (req, res, next) => {
 	// Send back the token payload object containing the user data
 	res.status(200).json(req.payload);
 };
-
-// exports.postUploadProfileImg = async (req, res, next) => {
-// 	try {
-// 		res.status(200).json(req.file.path);
-// 	} catch (error) {
-// 		res.status(500).json({ message: `An error occured while uploading the image - ${error.message}` });
-// 	}
-// };

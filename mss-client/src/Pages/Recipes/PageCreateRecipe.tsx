@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "@/context/auth.context";
-import { IngredientToAdd } from "@/types/recipeTypes";
+import { IngredientToAdd, NewIngredient } from "@/types/recipeTypes";
 import { NavigationHeader } from "@/Components/Molecules/NavigationHeader";
 import { Instruction } from "@/types/recipeTypes";
 import { Ingredient } from "@/types/ingredientTypes";
@@ -29,7 +29,8 @@ export const PageCreateRecipe = () => {
 	});
 	const [allIngredientsFromDB, setAllIngredientsFromDB] = useState<Ingredient[]>([]);
 	const [allIngredients, setAllIngredients] = useState<IngredientToAdd[]>([]);
-	const [newIngredient, setNewIngredient] = useState<IngredientToAdd>({
+	console.log("🚀 ~ PageCreateRecipe ~ allIngredients:", allIngredients);
+	const [newIngredient, setNewIngredient] = useState<NewIngredient>({
 		ingredientId: "",
 		name: "",
 		quantityForRecipe: 0,
@@ -38,7 +39,7 @@ export const PageCreateRecipe = () => {
 	const [allFoodTypesFromDB, setAllFoodTypesFromDB] = useState<FoodType[]>([]);
 	const [foodTypeId, setFoodTypeId] = useState<string>("");
 	const [tools, setTools] = useState<string[]>([]);
-
+	console.log("🚀 ~ PageCreateRecipe ~ newIngredient:", newIngredient);
 	useEffect(() => {
 		getAllFoodTypes().then((foodTypesFetched) => {
 			setAllFoodTypesFromDB(foodTypesFetched.data.foodType);
@@ -121,7 +122,7 @@ export const PageCreateRecipe = () => {
 					description,
 					createdBy: user!._id,
 					instructions: allInstructions,
-					ingredients: allIngredients.map(({ ingredientId, quantityForRecipe }) => ({ ingredientId, quantityForRecipe })),
+					ingredients: allIngredients.map(({ ingredientId, quantityForRecipe }) => ({ ingredient: ingredientId, quantityForRecipe })),
 					foodType: foodTypeId,
 					prepTime,
 					servings,

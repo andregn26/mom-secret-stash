@@ -40,27 +40,13 @@ router.post("/create", async (req, res, next) => {
 			servings,
 			tools,
 		});
+		const foundCreatedRecipe = await Recipe.findById(createdRecipe._id).populate("ingredients.ingredient");
 		const updatedFoodType = await FoodType.findByIdAndUpdate(foodType, { $push: { recipes: createdRecipe._id } }, { new: true });
 		const recipeCreator = await User.findByIdAndUpdate(createdBy, { $inc: { createdRecipesCount: 1 } });
-		return res.status(200).json({ message: "Recipe Created!", updatedFoodType, createdRecipe, recipeCreator });
+		return res.status(200).json({ message: "Recipe Created!", updatedFoodType, foundCreatedRecipe, recipeCreator });
 	} catch (error) {
 		next(error);
 	}
-	// Recipe.findOne({ name })
-	// 	.then((recipeFound) => {
-	// 		if (recipeFound) {
-	// 			res.status(400).json({ message: "The name of your recipe has already been taken" });
-	// 			return;
-	// 		}
-	// 		return Recipe.create({ imageUrl, name, description, createdBy, instructions, ingredients, prepTime, foodType, servings, tools });
-	// 	})
-	// 	.then((createdRecipe) => {
-	// 		return FoodType.findByIdAndUpdate(foodType, { $push: { recipes: createdRecipe._id } }, { new: true });
-	// 	})
-	// 	.finally(() => {
-	// 		res.status(200).json({ message: "Recipe Created and food type updated!" });
-	// 	})
-	// 	.catch((error) => next(error));
 });
 
 router.get("/:recipeId", (req, res, next) => {
@@ -117,6 +103,7 @@ router.delete("/:recipeId/delete", async (req, res, next) => {
 		await Promise.all([
 			FoodType.findByIdAndUpdate(recipeFounded.foodType, { $pull: { recipes: recipeFounded._id } }, { new: true }),
 			Recipe.findByIdAndDelete(recipeId),
+			User.findByIdAndUpdate(recipeFounded.createdBy, { $inc: { createdRecipesCount: -1 } }),
 		]);
 		res.status(200).json({ message: "Recipe deleted successfully" });
 	} catch (error) {

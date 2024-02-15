@@ -23,3 +23,9 @@ export type User = {
 	exp: number;
 	iat: number;
 };
+
+export type JwtTokenUser = {
+	email: string;
+	isUserAdmin: boolean;
+	_id: string;
+};
