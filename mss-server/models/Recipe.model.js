@@ -16,6 +16,7 @@ const recipeSchema = new Schema({
 			enum: ["Airfryer", "Oven", "Slow Cook"],
 		},
 	],
+	favoriteRecipes: [{ type: Schema.Types.ObjectId, ref: "Recipe" }],
 });
 
 const Recipe = model("Recipe", recipeSchema);
