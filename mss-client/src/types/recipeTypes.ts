@@ -1,7 +1,7 @@
 import { FoodType } from "./foodTypes";
 import { User } from "./userTypes";
 
-export type Recipe = {
+export type RecipeFromDB = {
 	_id: string;
 	imageUrl: string;
 	name: string;
@@ -10,37 +10,36 @@ export type Recipe = {
 	servings: number;
 	foodType: FoodType;
 	createdBy: User;
+	ingredients: {
+		_id: string;
+		quantityForRecipe: number;
+		ingredient: {
+			calories: number;
+			carbs: number;
+			category: string;
+			fat: number;
+			fiber: number;
+			name: string;
+			protein: number;
+			quantity: number;
+			unit: string;
+			_id: string;
+		};
+		instructions: InstructionFromDB[];
+	}[];
 };
 
-export type RecipeToCreate = {
+export type PostAndPutRecipe = {
 	name: string;
 	description: string;
 	ingredients: { ingredient: string; quantityForRecipe: number }[];
-	instructions: Instruction[];
+	instructions: NewInstruction[];
 	prepTime: number;
 	servings: number;
 	foodType: string;
 	createdBy?: string;
 	imageUrl?: string;
 	tools: string[];
-};
-
-export type RecipeToEdit = {
-	name: string;
-	description: string;
-	ingredients: IngredientToAdd[];
-	instructions: Instruction[];
-	prepTime: number;
-	servings: number;
-	foodType: string;
-	createdBy?: string;
-	imageUrl?: string;
-	tools: string[];
-};
-
-export type IngredientToAdd = {
-	ingredientId: string;
-	quantityForRecipe: number;
 };
 
 export type NewIngredient = {
@@ -50,17 +49,12 @@ export type NewIngredient = {
 	unit?: number;
 };
 
-export type Instruction = {
+export type NewInstruction = {
 	step: number;
 	instruction: string;
 };
 export type InstructionFromDB = {
 	_id: string;
-	step: number;
-	instruction: string;
-};
-
-export type NewInstruction = {
 	step: number;
 	instruction: string;
 };

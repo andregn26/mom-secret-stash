@@ -4,9 +4,8 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "@/context/auth.context";
-import { IngredientToAdd, NewIngredient } from "@/types/recipeTypes";
+import { NewIngredient, NewInstruction } from "@/types/recipeTypes";
 import { NavigationHeader } from "@/Components/Molecules/NavigationHeader";
-import { Instruction } from "@/types/recipeTypes";
 import { Ingredient } from "@/types/ingredientTypes";
 import { FoodType } from "@/types/foodTypes";
 import { RecipeForm } from "@/Components/Organisms/Recipes/RecipeForm";
@@ -22,14 +21,13 @@ export const PageCreateRecipe = () => {
 	const [prepTime, setPrepTime] = useState<number>(60);
 	const [servings, setServings] = useState<number>(4);
 	// STATE - NON-PRIMITIVE VALUES
-	const [allInstructions, setAllInstructions] = useState<Instruction[]>([]);
-	const [newInstruction, setNewInstruction] = useState<Instruction>({
+	const [allInstructions, setAllInstructions] = useState<NewInstruction[]>([]);
+	const [newInstruction, setNewInstruction] = useState<NewInstruction>({
 		step: 1,
 		instruction: "",
 	});
 	const [allIngredientsFromDB, setAllIngredientsFromDB] = useState<Ingredient[]>([]);
-	const [allIngredients, setAllIngredients] = useState<IngredientToAdd[]>([]);
-	console.log("🚀 ~ PageCreateRecipe ~ allIngredients:", allIngredients);
+	const [allIngredients, setAllIngredients] = useState<NewIngredient[]>([]);
 	const [newIngredient, setNewIngredient] = useState<NewIngredient>({
 		ingredientId: "",
 		name: "",
@@ -39,7 +37,7 @@ export const PageCreateRecipe = () => {
 	const [allFoodTypesFromDB, setAllFoodTypesFromDB] = useState<FoodType[]>([]);
 	const [foodTypeId, setFoodTypeId] = useState<string>("");
 	const [tools, setTools] = useState<string[]>([]);
-	console.log("🚀 ~ PageCreateRecipe ~ newIngredient:", newIngredient);
+
 	useEffect(() => {
 		getAllFoodTypes().then((foodTypesFetched) => {
 			setAllFoodTypesFromDB(foodTypesFetched.data.foodType);
@@ -57,7 +55,7 @@ export const PageCreateRecipe = () => {
 		if (e.target.files) {
 			setFileImg(e.target.files[0]);
 		}
-	}; // can i tranfer to recipe form?
+	}; // can i transfer to recipe form?
 
 	const optionsIngredients = allIngredientsFromDB.map((ingredient) => {
 		return { value: ingredient._id, label: `${ingredient.name} | ${ingredient.unit}`, unit: ingredient.unit };

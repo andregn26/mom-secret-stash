@@ -20,7 +20,7 @@ function App() {
 	return (
 		<div className="relative bg-base-100 w-full h-screen overflow-hidden lg:flex font-barlow">
 			<TemplateNavigation>
-				<main className="mx-auto max-w-screen-xl w-full pt-12 px-4 pb-4 md:px-6 md:pb-6 xl:px-12 xl:pb-12 2xl:px-16">
+				<main className="mx-auto max-w-screen-xl w-full  pt-12 px-4 pb-4 md:px-6 md:pb-6 xl:px-12 xl:pb-12 2xl:px-16">
 					<Routes>
 						<Route index element={<PageMain />} />
 						<Route path="explore" element={<PageExplore />} />

@@ -1,7 +1,7 @@
 import { UserLogin, UserRegister } from "./types/userTypes";
-import { RecipeToEdit, RecipeToCreate } from "./types/recipeTypes";
 import { Ingredient } from "./types/ingredientTypes";
 import axios from "axios";
+import { PostAndPutRecipe } from "./types/recipeTypes";
 const BASE_URL = `${import.meta.env.VITE_API}` || "http://localhost:5005/api";
 
 // AUTH
@@ -37,11 +37,11 @@ export const getRecipe = (recipeId: string) => {
 	return axios.get(`${BASE_URL}/recipe/${recipeId}`);
 };
 
-export const postCreateRecipe = (newRecipe: RecipeToCreate) => {
+export const postCreateRecipe = (newRecipe: PostAndPutRecipe) => {
 	return axios.post(`${BASE_URL}/recipe/create`, newRecipe);
 };
 
-export const putEditRecipe = (recipeId: string, recipeToEdit: RecipeToEdit) => {
+export const putEditRecipe = (recipeId: string, recipeToEdit: PostAndPutRecipe) => {
 	return axios.put(`${BASE_URL}/recipe/${recipeId}/edit`, recipeToEdit);
 };
 

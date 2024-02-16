@@ -60,13 +60,14 @@ router.get("/:recipeId", (req, res, next) => {
 				options: { perDocumentLimit: 5 }, // Limit the number of populated recipes within foodType to 5
 			},
 		})
+		.populate("ingredients.ingredient")
 		.then((recipeFounded) => (recipeFounded ? res.status(200).json({ recipeFounded }) : res.status(404).json({ message: "Recipe not found!" })))
 		.catch((error) => next(error));
 });
 
 router.put("/:recipeId/edit", (req, res, next) => {
 	const { recipeId } = req.params;
-	const { imageUrl, name, description, prepTime, servings, tools, foodType, instructions } = req.body;
+	const { imageUrl, name, description, prepTime, servings, tools, foodType, instructions, ingredients } = req.body;
 
 	if (name === "") {
 		res.status(400).json({ message: "Your recipe must have a name!" });
@@ -81,7 +82,7 @@ router.put("/:recipeId/edit", (req, res, next) => {
 			servings,
 			tools,
 			instructions,
-			// ingredients,
+			ingredients,
 			foodType,
 		},
 		{ new: true }

@@ -8,7 +8,7 @@ import { FormContainer } from "@/Components/Organisms/FormContainer";
 import { AuthForm } from "@/Components/Organisms/AuthForm";
 
 export const PageRegister = () => {
-	const [registerValues, setRegisterValues] = useState({ firstName: "", lastName: "", email: "", password: "", checkPassword: "" });
+	const [registerValues, setRegisterValues] = useState({ firstName: "", lastName: "", email: "", password: "", checkPassword: "", aboutMe: "" });
 	const [fileProfileImg, setFileProfileImg] = useState<any>(null);
 	const [isCreatingUser, setIsCreatingUser] = useState<boolean>(false);
 
@@ -38,8 +38,8 @@ export const PageRegister = () => {
 			data.append("my_file", fileProfileImg);
 			const res = await postUpload(data);
 			const profileImg = res.data.url;
-			const { firstName, lastName, email, password } = registerValues;
-			const createAccount = await postSignup({ firstName, lastName, email, password, profileImg });
+			const { firstName, lastName, email, password, aboutMe } = registerValues;
+			const createAccount = await postSignup({ firstName, lastName, email, password, profileImg, aboutMe });
 			toast.success(createAccount.data.message);
 			navigate("/login");
 		} catch (error: unknown) {
@@ -54,15 +54,17 @@ export const PageRegister = () => {
 	};
 
 	return (
-		<FormContainer title="Great! You're one step closer to find the best recipes">
-			<AuthForm
-				handleSelectFileProfileImg={handleSelectFileProfileImg}
-				handleSubmit={handleRegisterSubmit}
-				handleChange={handleRegisterChange}
-				values={registerValues}
-				auth="register"
-				isLoading={isCreatingUser}
-			/>
-		</FormContainer>
+		<div className="">
+			<FormContainer title="Great! You're one step closer to find the best recipes">
+				<AuthForm
+					handleSelectFileProfileImg={handleSelectFileProfileImg}
+					handleSubmit={handleRegisterSubmit}
+					handleChange={handleRegisterChange}
+					values={registerValues}
+					auth="register"
+					isLoading={isCreatingUser}
+				/>
+			</FormContainer>
+		</div>
 	);
 };

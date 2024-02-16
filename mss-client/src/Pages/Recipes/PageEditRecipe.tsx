@@ -5,7 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import { NavigationHeader } from "@/Components/Molecules/NavigationHeader";
 import { RecipeForm } from "@/Components/Organisms/Recipes/RecipeForm";
-import { Instruction, IngredientToAdd } from "@/types/recipeTypes";
+import { NewInstruction, NewIngredient } from "@/types/recipeTypes";
 import { Ingredient } from "@/types/ingredientTypes";
 import { FoodType } from "@/types/foodTypes";
 import { AuthContext } from "@/context/auth.context";
@@ -25,15 +25,15 @@ export const PageEditRecipe = () => {
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	// STATE - OBJECT AND ARRAY VALUES
 	const [editedTools, setEditedTools] = useState<string[]>([]);
-	const [allInstructions, setAllInstructions] = useState<Instruction[]>([]);
-	console.log("🚀 ~ PageEditRecipe ~ allInstructions:", allInstructions);
-	const [newInstruction, setNewInstruction] = useState<Instruction>({
+	const [allInstructions, setAllInstructions] = useState<NewInstruction[]>([]);
+	const [newInstruction, setNewInstruction] = useState<NewInstruction>({
 		step: 1,
 		instruction: "",
 	});
-	const [allIngredientsFetched, setAllIngredientsFetched] = useState<Ingredient[]>([]);
-	const [allIngredients, setAllIngredients] = useState<IngredientToAdd[]>([]);
-	const [newIngredient, setNewIngredient] = useState<IngredientToAdd>({
+	const [allIngredientsFromDB, setAllIngredientsFromDB] = useState<Ingredient[]>([]);
+
+	const [allIngredients, setAllIngredients] = useState<NewIngredient[]>([]);
+	const [newIngredient, setNewIngredient] = useState<NewIngredient>({
 		ingredientId: "",
 		name: "",
 		quantityForRecipe: 0,
@@ -61,7 +61,22 @@ export const PageEditRecipe = () => {
 				setFoodTypeId(recipeFound.foodType._id);
 				setAllInstructions(recipeFound.instructions);
 				const ingredientsFetched = await getAllIngredients();
-				setAllIngredientsFetched(ingredientsFetched.data.foundedIngredients);
+				setAllIngredientsFromDB(ingredientsFetched.data.foundedIngredients);
+				const recipeIds = recipeFound.ingredients.map((ingredient: { ingredient: { _id: string } }) => ingredient.ingredient._id);
+				setAllIngredients(
+					ingredientsFetched.data.foundedIngredients
+						.filter((option: { _id: string }) => recipeIds.includes(option._id))
+						.map((ingredient: { _id: string; name: string; unit: string }) => {
+							return {
+								ingredientId: ingredient._id,
+								quantityForRecipe: recipeFound.ingredients.find(
+									(recipeIngredient: { ingredient: { _id: string } }) => recipeIngredient.ingredient._id === ingredient._id
+								).quantityForRecipe,
+								name: ingredient.name,
+								unit: ingredient.unit,
+							};
+						})
+				);
 				const foodTypesFetched = await getAllFoodTypes();
 				setAllFoodTypesFromDB(foodTypesFetched.data.foodType);
 			} catch (error: unknown) {
@@ -83,7 +98,7 @@ export const PageEditRecipe = () => {
 		}
 	};
 
-	const optionsIngredients = allIngredientsFetched.map((ingredient) => {
+	const optionsIngredients = allIngredientsFromDB.map((ingredient) => {
 		return { value: ingredient._id, label: `${ingredient.name} | ${ingredient.unit}`, unit: ingredient.unit };
 	});
 
@@ -150,13 +165,12 @@ export const PageEditRecipe = () => {
 				prepTime: editedPrepTime,
 				servings: editedServings,
 				instructions: allInstructions,
-				ingredients: allIngredients.map(({ ingredientId, quantityForRecipe }) => ({ ingredientId, quantityForRecipe })),
+				ingredients: allIngredients.map(({ ingredientId, quantityForRecipe }) => ({ ingredient: ingredientId, quantityForRecipe })),
 				foodType: foodTypeId,
 				tools: editedTools,
 			});
 			console.log("🚀 ~ .then ~ res:", res);
 			toast.success(res.data.message);
-			navigate(`/${user!._id}/my-recipes`);
 		} catch (error: unknown) {
 			if (axios.isAxiosError(error)) {
 				toast.error(error.response?.data.message);
@@ -164,6 +178,7 @@ export const PageEditRecipe = () => {
 			console.log(error);
 		} finally {
 			setIsLoading(false);
+			navigate(`/${user!._id}/my-recipes`);
 		}
 	};
 	return (

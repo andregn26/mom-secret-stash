@@ -1,8 +1,8 @@
 import React, { Dispatch, SetStateAction } from "react";
-import Select from "react-select";
+import Select, { SingleValue } from "react-select";
 import { ButtonSubmit } from "@/Components/Atoms/ButtonSubmit";
 import { Delete } from "@icon-park/react";
-import { IngredientToAdd, Instruction } from "@/types/recipeTypes";
+import { NewIngredient, NewInstruction } from "@/types/recipeTypes";
 import { FoodType } from "@/types/foodTypes";
 
 const optionsTools = [
@@ -116,7 +116,7 @@ const FoodTypeComponent = ({ type, setFoodTypeId, optionsFoodType, foodTypeId }:
 							isFocused
 								? " w-full !bg-base-100 !border-2 !border-base-300  !h-12 !cursor-pointer !shadow-none"
 								: "!border-2 !border-transparent !bg-base-100 !h-12",
-						menuList: () => " bg-base-200 rounded-sm",
+						menuList: () => "bg-base-200 rounded-sm text-sm",
 						option: ({ isFocused }) => (isFocused ? " !bg-primary/20" : ""),
 						placeholder: () => "text-sm !text-neutral-content",
 						singleValue: () => "text-sm !text-neutral-content",
@@ -204,12 +204,12 @@ type RecipeFormProps = {
 		label: string;
 		unit: string;
 	}[];
-	newIngredient: IngredientToAdd;
-	setNewIngredient: React.Dispatch<React.SetStateAction<IngredientToAdd>>;
-	allIngredients: IngredientToAdd[];
-	newInstruction: Instruction;
+	newIngredient: NewIngredient;
+	setNewIngredient: React.Dispatch<React.SetStateAction<NewIngredient>>;
+	allIngredients: NewIngredient[];
+	newInstruction: NewInstruction;
 	isLoading: boolean;
-	allInstructions: Instruction[];
+	allInstructions: NewInstruction[];
 	handleInstructionChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 	handleSelectNewIngredient: (ingredient: { value: string; label: string; unit: number }) => void;
 	handleAddIngredient: (e: React.MouseEvent<HTMLButtonElement>) => void;
@@ -261,13 +261,16 @@ export const RecipeForm = (props: RecipeFormProps) => {
 											</div>
 											<Select
 												placeholder="Select ingredients"
-												onChange={(ingredient) => props.handleSelectNewIngredient(ingredient)}
+												onChange={(ingredient: SingleValue<{ value: string; label: string; unit: number }>) =>
+													props.handleSelectNewIngredient(ingredient!)
+												}
 												classNames={{
 													control: ({ isFocused }) =>
 														isFocused
 															? " w-full !bg-base-100 !border-2 !border-base-300  !h-12 !cursor-pointer !shadow-none"
 															: "!border-2 !border-transparent !bg-base-100 !h-12",
-													menu: () => " w-full border_red_2 text-sm rounded-sm",
+													menuList: () => " bg-base-200 rounded-sm text-sm",
+													option: ({ isFocused, isSelected }) => (isSelected ? "!bg-primary text-white" : isFocused ? "!bg-primary/20" : ""),
 													placeholder: () => "text-sm !text-neutral-content",
 													singleValue: () => "text-sm !text-neutral-content",
 												}}
@@ -282,7 +285,7 @@ export const RecipeForm = (props: RecipeFormProps) => {
 												type="number"
 												value={props.newIngredient.quantityForRecipe}
 												min={0}
-												onChange={(e) => props.setNewIngredient((prev) => ({ ...prev, quantityForRecipe: Number(e.target.value) }))}
+												onChange={(e) => props.setNewIngredient((prev: NewIngredient) => ({ ...prev, quantityForRecipe: Number(e.target.value) }))}
 												className="input w-full"
 											/>
 										</label>
@@ -304,7 +307,10 @@ export const RecipeForm = (props: RecipeFormProps) => {
 																		<Delete theme="outline" size="12" />
 																	</button>
 																	<p className="text-sm">
-																		{ingredient.name} - <span>{ingredient.quantityForRecipe}</span>
+																		{ingredient.name} -{" "}
+																		<span>
+																			{ingredient.quantityForRecipe} {ingredient.unit}
+																		</span>
 																	</p>
 																</div>
 															</li>
@@ -376,8 +382,8 @@ export const RecipeForm = (props: RecipeFormProps) => {
 										)}
 									</div>
 								</div>
-
-								<ButtonSubmit status={props.isLoading ? "submitting" : "idle"} buttonText="Create recipe" />
+								{props.type === "create" && <ButtonSubmit status={props.isLoading ? "submitting" : "idle"} buttonText="Create recipe" />}
+								{props.type === "edit" && <ButtonSubmit status={props.isLoading ? "submitting" : "idle"} buttonText="Save changes" />}
 							</div>
 						</div>
 					</form>

@@ -35,15 +35,19 @@ export const PageProfile = () => {
 		<>
 			<NavigationHeader pageName="My Profile" />
 
-			<div className="overflow-hidden rounded-md  bg-neutral shadow-sm border">
+			<div className="overflow-hidden rounded-md  bg-neutral shadow-md border">
 				<div className="px-4 py-6 md:py-10 text-center ">
 					<div className="relative flex justify-center w-32 h-32 mx-auto">
 						<figure className={`${isLoading && "skeleton"} relative overflow-hidden rounded-full`}>
 							<img className="object-cover w-32 h-32" id="profilePic" src={user?.profileImg} alt="" />
 						</figure>
-						<label className="absolute bottom-0 right-0 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-primary ">
-							<EditName theme="outline" size="16" className="text-neutral/80" />
-						</label>
+						{!user ? null : (
+							<>
+								<label className="absolute bottom-0 right-0 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-primary ">
+									<EditName theme="outline" size="16" className="text-neutral/80" />
+								</label>
+							</>
+						)}
 					</div>
 					<div className="mt-4">
 						<h3 className={`${isLoading && "skeleton h-6 w-48 mx-auto"} mb-2 text-2xl font-semibold text-neutral-content`}>
@@ -64,12 +68,13 @@ export const PageProfile = () => {
 								</>
 							)}
 						</div>
-						<div className="mx-auto max-w-screen-sm">
-							<h4 className="font-semibold text-neutral-content">About me</h4>
-							<p className="mt-4">
-								Lorem ipsum dolor sit amet consectetur adipisicing elit. Porro molestiae, tempore voluptatibus dolorum mollitia, ex illum dicta quasi,
-								incidunt eaque eius. Mollitia ut tenetur, exercitationem reiciendis laborum incidunt eligendi expedita.
-							</p>
+						<div className={`${isLoading && "skeleton h-28"} mx-auto max-w-screen-sm`}>
+							{!user?.aboutMe ? null : (
+								<>
+									<h4 className="font-semibold text-neutral-content">About me</h4>
+									<p className="mt-4">{user?.aboutMe}</p>
+								</>
+							)}
 						</div>
 					</div>
 				</div>

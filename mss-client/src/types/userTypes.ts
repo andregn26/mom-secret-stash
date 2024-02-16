@@ -4,6 +4,7 @@ export type UserRegister = {
 	email: string;
 	password: string;
 	profileImg?: string | null;
+	aboutMe?: string;
 };
 
 export type UserLogin = {
@@ -19,6 +20,7 @@ export type User = {
 	profileImg?: string;
 	isUserAdmin: boolean;
 	createdRecipesCount: number;
+	aboutMe?: string;
 	_id: string;
 	exp: number;
 	iat: number;

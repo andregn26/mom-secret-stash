@@ -4,7 +4,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 exports.postSignup = async (req, res, next) => {
-	const { firstName, lastName, email, password, profileImg } = req.body;
+	const { firstName, lastName, email, password, profileImg, aboutMe } = req.body;
 	try {
 		// Check if email or password or name are provided as empty strings
 		if (email === "" || password === "" || firstName === "" || lastName === "") {
@@ -43,7 +43,7 @@ exports.postSignup = async (req, res, next) => {
 				const hashedPassword = bcrypt.hashSync(password, salt);
 				// Create the new user in the database
 				// We return a pending promise, which allows us to chain another `then`
-				return User.create({ firstName, lastName, email, password: hashedPassword, profileImg });
+				return User.create({ firstName, lastName, email, password: hashedPassword, profileImg, aboutMe });
 			})
 			.then((createdUser) => {
 				// Deconstruct the newly created user object to omit the password
@@ -87,7 +87,7 @@ exports.postLogin = async (req, res, next) => {
 					expiresIn: "6h",
 				});
 				// Send the token as the response
-				res.status(200).json({ message: "Welcome to your account!", authToken: authToken });
+				res.status(200).json({ message: "Welcome to your account!", authToken: authToken, payload });
 			} else {
 				res.status(401).json({ message: "Unable to authenticate the user" });
 			}

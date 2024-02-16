@@ -21,8 +21,8 @@ router.get("/:userId", isAuthenticated, async (req, res, next) => {
 		if (!userFound) {
 			res.status(404).json({ message: "User not found!" });
 		}
-		const { _id, firstName, lastName, email, profileImg, isUserAdmin, createdRecipesCount } = userFound;
-		const userDetails = { _id, firstName, lastName, email, profileImg, isUserAdmin, createdRecipesCount };
+		const { _id, firstName, lastName, email, profileImg, isUserAdmin, createdRecipesCount, aboutMe } = userFound;
+		const userDetails = { _id, firstName, lastName, email, profileImg, isUserAdmin, createdRecipesCount, aboutMe };
 		res.status(200).json({ message: "User found!", userDetails });
 	} catch (error) {
 		next(error);
