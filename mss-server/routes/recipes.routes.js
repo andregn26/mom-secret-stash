@@ -2,6 +2,7 @@ const router = require("express").Router();
 const Recipe = require("../models/Recipe.model");
 const FoodType = require("../models/FoodType.model");
 const User = require("../models/User.model");
+const { isAuthenticated } = require("../middleware/jwt.middleware");
 
 router.get("/all", (req, res, next) => {
 	Recipe.find({})
@@ -111,4 +112,73 @@ router.delete("/:recipeId/delete", async (req, res, next) => {
 		next(error);
 	}
 });
+
+router.put("/:recipeId/addToFavorite", isAuthenticated, async (req, res, next) => {
+	const { recipeId } = req.params;
+	try {
+		const userFounded = await User.findById(req.payload._id);
+		if (!userFounded) {
+			res.status(404).json({ message: "User not found!" });
+			return;
+		}
+		const foundedRecipe = await Recipe.findById(recipeId);
+		if (!foundedRecipe) {
+			res.status(404).json({ message: "Recipe not found!" });
+			return;
+		}
+
+		const isRecipeAlreadyInFavorite = userFounded.favoriteRecipes.includes(foundedRecipe._id);
+		if (isRecipeAlreadyInFavorite) {
+			res.status(404).json({ message: "Recipe is already in your favorite list." });
+			return;
+		}
+
+		const updatedRecipeFavoriteList = await User.findByIdAndUpdate(req.payload._id, { $push: { favoriteRecipes: foundedRecipe._id } }, { new: true });
+		const updatedRecipeFavoriteListCount = await Recipe.findByIdAndUpdate(recipeId, { $inc: { favoriteCount: +1 } }, { new: true });
+
+		res.status(200).json({
+			message: "Added recipe to favorite list",
+			debugMessage: "Added recipe and incremented count in recipe favorite count.",
+			updatedRecipeFavoriteList,
+			updatedRecipeFavoriteListCount: updatedRecipeFavoriteListCount.favoriteCount,
+		});
+	} catch (error) {
+		next(error);
+	}
+});
+
+router.put("/:recipeId/removeFromFavorite", isAuthenticated, async (req, res, next) => {
+	const { recipeId } = req.params;
+	try {
+		const userFounded = await User.findById(req.payload._id);
+		if (!userFounded) {
+			res.status(404).json({ message: "User not found!" });
+			return;
+		}
+		const foundedRecipe = await Recipe.findById(recipeId);
+		if (!foundedRecipe) {
+			res.status(404).json({ message: "Recipe not found!" });
+			return;
+		}
+
+		const isRecipeAlreadyInFavorite = userFounded.favoriteRecipes.includes(foundedRecipe._id);
+		if (!isRecipeAlreadyInFavorite) {
+			res.status(404).json({ message: "Recipe is not in your favorite list." });
+			return;
+		}
+
+		const updatedRecipeFavoriteList = await User.findByIdAndUpdate(req.payload._id, { $pull: { favoriteRecipes: foundedRecipe._id } }, { new: true });
+		const updatedRecipeFavoriteListCount = await Recipe.findByIdAndUpdate(recipeId, { $inc: { favoriteCount: -1 } }, { new: true });
+
+		res.status(200).json({
+			message: "Removed recipe from favorite list",
+			debugMessage: "Removed recipe and decremented count in recipe favorite count.",
+			updatedRecipeFavoriteList,
+			updatedRecipeFavoriteListCount: updatedRecipeFavoriteListCount.favoriteCount,
+		});
+	} catch (error) {
+		next(error);
+	}
+});
+
 module.exports = router;
