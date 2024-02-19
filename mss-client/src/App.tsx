@@ -1,6 +1,6 @@
 import "./App.css";
 import { Toaster } from "react-hot-toast";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { PageRegister } from "./Pages/Auth/PageRegister";
 import { PageLogin } from "@/Pages/Auth/PageLogin";
 import { PageMain } from "./Pages/PageMain";
@@ -16,13 +16,14 @@ import { PageCreateIngredients } from "./Pages/Ingredients/PageCreateIngredients
 import { PageEditIngredient } from "./Pages/Ingredients/PageEditIngredient";
 import { PageExplore } from "./Pages/Recipes/PageExplore";
 import { PageFavorites } from "./Pages/Recipes/PageFavorites";
+
 function App() {
 	return (
 		<div className="relative bg-base-100 w-full h-screen overflow-hidden lg:flex font-barlow">
 			<TemplateNavigation>
 				<main className="mx-auto max-w-screen-xl w-full  pt-12 px-4 pb-4 md:px-6 md:pb-6 xl:px-12 xl:pb-12 2xl:px-16">
 					<Routes>
-						<Route index element={<PageMain />} />
+						<Route index element={<Navigate to="/explore" />} />
 						<Route path="explore" element={<PageExplore />} />
 						<Route path={"login"} element={<PageLogin />} />
 						<Route path={"register"} element={<PageRegister />} />

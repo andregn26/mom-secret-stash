@@ -1,4 +1,4 @@
-import { postCreateRecipe, getAllFoodTypes, postUpload, getAllIngredients } from "@/api";
+import { postCreateRecipe, postUpload, getAllIngredients } from "@/api";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
@@ -7,8 +7,8 @@ import { AuthContext } from "@/context/auth.context";
 import { NewIngredient, NewInstruction } from "@/types/recipeTypes";
 import { NavigationHeader } from "@/Components/Molecules/NavigationHeader";
 import { Ingredient } from "@/types/ingredientTypes";
-import { FoodType } from "@/types/foodTypes";
 import { RecipeForm } from "@/Components/Organisms/Recipes/RecipeForm";
+import { useFetchAllFoodTypes } from "@/hooks/useFetchAllFoodTypes";
 
 export const PageCreateRecipe = () => {
 	const navigate = useNavigate();
@@ -34,14 +34,13 @@ export const PageCreateRecipe = () => {
 		quantityForRecipe: 0,
 		unit: 0,
 	});
-	const [allFoodTypesFromDB, setAllFoodTypesFromDB] = useState<FoodType[]>([]);
+
 	const [foodTypeId, setFoodTypeId] = useState<string>("");
 	const [tools, setTools] = useState<string[]>([]);
 
+	const { allFoodTypesFromDB, isLoadingFoodTypesFromDB } = useFetchAllFoodTypes();
+
 	useEffect(() => {
-		getAllFoodTypes().then((foodTypesFetched) => {
-			setAllFoodTypesFromDB(foodTypesFetched.data.foodType);
-		});
 		getAllIngredients()
 			.then((ingredientsFetched) => {
 				setAllIngredientsFromDB(ingredientsFetched.data.foundedIngredients);
@@ -94,7 +93,15 @@ export const PageCreateRecipe = () => {
 			toast.error("Something went wrong!");
 			return;
 		}
-		if (newIngredient) {
+
+		let ingredientExists = false;
+		allIngredients.forEach((ingredient) => {
+			if (ingredient.ingredientId === newIngredient.ingredientId) {
+				ingredientExists = true;
+				toast.error("Ingredient already added.");
+			}
+		});
+		if (!ingredientExists) {
 			const updatedAllIngredients = [...allIngredients];
 			updatedAllIngredients.push(newIngredient);
 			setAllIngredients(updatedAllIngredients);
@@ -170,6 +177,7 @@ export const PageCreateRecipe = () => {
 				handleIngredientDelete={handleIngredientDelete}
 				handleAddInstruction={handleAddInstruction}
 				handleDeleteInstruction={handleDeleteInstruction}
+				isLoadingFoodTypesFromDB={isLoadingFoodTypesFromDB}
 			/>
 		</>
 	);

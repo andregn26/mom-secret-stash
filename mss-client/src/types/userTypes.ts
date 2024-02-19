@@ -1,3 +1,5 @@
+import { RecipeFromDB } from "./recipeTypes";
+
 export type UserRegister = {
 	firstName: string;
 	lastName: string;
@@ -21,6 +23,7 @@ export type User = {
 	isUserAdmin: boolean;
 	createdRecipesCount: number;
 	aboutMe?: string;
+	favoriteRecipes: string[] | RecipeFromDB[];
 	_id: string;
 	exp: number;
 	iat: number;
