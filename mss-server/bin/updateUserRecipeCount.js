@@ -1,5 +1,5 @@
-const User = require("../models/User.model"); // Import your User model
-const Recipe = require("../models/Recipe.model"); // Import your User model
+const User = require("../models/User.model");
+const Recipe = require("../models/Recipe.model");
 const mongoose = require("mongoose");
 // Step 2: Update existing users to have the recipeCount property
 

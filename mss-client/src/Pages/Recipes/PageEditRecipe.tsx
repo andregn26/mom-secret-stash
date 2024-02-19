@@ -1,5 +1,5 @@
 import { useState, useContext } from "react";
-import { getRecipe, putEditRecipe, getAllIngredients, getAllFoodTypes, postUpload } from "@/api";
+import { getRecipe, putEditRecipe, getAllIngredients, postUpload } from "@/api";
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -7,9 +7,10 @@ import { NavigationHeader } from "@/Components/Molecules/NavigationHeader";
 import { RecipeForm } from "@/Components/Organisms/Recipes/RecipeForm";
 import { NewInstruction, NewIngredient } from "@/types/recipeTypes";
 import { Ingredient } from "@/types/ingredientTypes";
-import { FoodType } from "@/types/foodTypes";
+
 import { AuthContext } from "@/context/auth.context";
 import axios from "axios";
+import { useFetchAllFoodTypes } from "@/hooks/useFetchAllFoodTypes";
 
 export const PageEditRecipe = () => {
 	const { recipeId } = useParams();
@@ -39,8 +40,9 @@ export const PageEditRecipe = () => {
 		quantityForRecipe: 0,
 		unit: 0,
 	});
-	const [allFoodTypesFromDB, setAllFoodTypesFromDB] = useState<FoodType[]>([]);
 	const [foodTypeId, setFoodTypeId] = useState<string>("");
+
+	const { allFoodTypesFromDB, isLoadingFoodTypesFromDB } = useFetchAllFoodTypes();
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -51,7 +53,6 @@ export const PageEditRecipe = () => {
 				}
 				const fetchedRecipe = await getRecipe(recipeId);
 				const recipeFound = fetchedRecipe.data.recipeFounded;
-				console.log("🚀 ~ .then ~ recipeFound:", recipeFound);
 				setFetchedImgLink(recipeFound.imageUrl);
 				setEditedName(recipeFound.name);
 				setEditedDescription(recipeFound.description);
@@ -77,8 +78,6 @@ export const PageEditRecipe = () => {
 							};
 						})
 				);
-				const foodTypesFetched = await getAllFoodTypes();
-				setAllFoodTypesFromDB(foodTypesFetched.data.foodType);
 			} catch (error: unknown) {
 				if (axios.isAxiosError(error)) {
 					toast.error(error.message);
@@ -135,7 +134,14 @@ export const PageEditRecipe = () => {
 			toast.error("Something went wrong!");
 			return;
 		}
-		if (newIngredient) {
+		let ingredientExists = false;
+		allIngredients.forEach((ingredient) => {
+			if (ingredient.ingredientId === newIngredient.ingredientId) {
+				ingredientExists = true;
+				toast.error("Ingredient already added.");
+			}
+		});
+		if (!ingredientExists) {
 			const updatedAllIngredients = [...allIngredients];
 			updatedAllIngredients.push(newIngredient);
 			setAllIngredients(updatedAllIngredients);
@@ -215,6 +221,7 @@ export const PageEditRecipe = () => {
 				handleIngredientDelete={handleIngredientDelete}
 				handleAddInstruction={handleAddInstruction}
 				handleDeleteInstruction={handleDeleteInstruction}
+				isLoadingFoodTypesFromDB={isLoadingFoodTypesFromDB}
 			/>
 		</>
 	);

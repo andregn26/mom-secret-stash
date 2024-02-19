@@ -3,7 +3,7 @@ import Select, { SingleValue } from "react-select";
 import { ButtonSubmit } from "@/Components/Atoms/ButtonSubmit";
 import { Delete } from "@icon-park/react";
 import { NewIngredient, NewInstruction } from "@/types/recipeTypes";
-import { FoodType } from "@/types/foodTypes";
+import { FoodTypeFromDB } from "@/types/foodTypes";
 
 const optionsTools = [
 	{ value: "Airfryer", label: "Airfryer" },
@@ -62,7 +62,7 @@ const PrepTime = ({ value, setValue }: PrepTimeProps) => {
 			<div className="label">
 				<span className="label-text truncate">Prep time (min)</span>
 			</div>
-			<input type="number" value={value} min={0} onChange={(e) => setValue(Number(e.target.value))} className="input w-full" />
+			<input type="number" value={value} min={1} onChange={(e) => setValue(Number(e.target.value))} className="input w-full" />
 		</label>
 	);
 };
@@ -76,7 +76,7 @@ const Servings = ({ value, setValue }: ServingsProps) => {
 			<div className="label">
 				<span className="label-text">Servings</span>
 			</div>
-			<input type="number" value={value} min={0} onChange={(e) => setValue(Number(e.target.value))} className="input w-full max-w-xs" />
+			<input type="number" value={value} min={1} onChange={(e) => setValue(Number(e.target.value))} className="input w-full max-w-xs" />
 		</label>
 	);
 };
@@ -216,179 +216,183 @@ type RecipeFormProps = {
 	handleIngredientDelete: (e: React.MouseEvent<HTMLButtonElement>, index: number) => void;
 	handleAddInstruction: (e: React.MouseEvent<HTMLButtonElement>) => void;
 	handleDeleteInstruction: (e: React.MouseEvent<HTMLButtonElement>, index: number) => void;
-	allFoodTypesFromDB: FoodType[];
+	allFoodTypesFromDB: FoodTypeFromDB[] | null;
+	isLoadingFoodTypesFromDB: boolean;
 };
 export const RecipeForm = (props: RecipeFormProps) => {
+	if (!props.allFoodTypesFromDB || props.isLoadingFoodTypesFromDB) {
+		return (
+			<div className="absolute top-0 left-0 flex justify-center items-center w-full h-screen">
+				<span className="loading loading-ring loading-lg"></span>
+			</div>
+		);
+	}
+
 	const optionsFoodType: { value: string; label: string }[] = props.allFoodTypesFromDB.map((foodType) => {
 		return { value: foodType._id, label: foodType.name };
 	});
 	return (
 		<>
-			{props.isLoading ? (
-				<p>Loading</p>
-			) : (
-				<>
-					<form
-						onSubmit={(e) => props.onSubmit(e)}
-						className="p-4 md:p-6 xl:p-8 2xl:p-10 bg-neutral shadow-sm border w-full rounded-md text-base sm:text-lg ">
-						<div className="flex flex-col gap-10 lg:grid grid-cols-3 lg:gap-10">
-							{/* COL 1 */}
-							<div className="flex flex-col lg:col-span-1 gap-8">
-								<ProfilePic onChangeFile={props.onChangeFile} type={props.type} fetchedImgLink={props.fetchedImgLink} />
-								<Name value={props.name} setValue={props.setName} />
-								<Description value={props.description} setValue={props.setDescription} />
-								<div className="flex justify-between gap-4 ">
-									<PrepTime value={props.prepTime} setValue={props.setPrepTime} />
-									<Servings value={props.servings} setValue={props.setServings} />
-								</div>
-								<FoodTypeComponent
-									type={props.type}
-									setFoodTypeId={props.setFoodTypeId}
-									optionsFoodType={optionsFoodType}
-									foodTypeId={props.foodTypeId!}
-								/>
-								<ToolsComponent type={props.type} setTools={props.setTools} tools={props.tools} />
+			<form
+				onSubmit={(e) => props.onSubmit(e)}
+				className="p-4 md:p-6 xl:p-8 2xl:p-10 bg-neutral shadow-sm border w-full rounded-md text-base sm:text-lg ">
+				<div className="flex flex-col gap-10 lg:grid grid-cols-3 lg:gap-10">
+					{/* COL 1 */}
+					<div className="flex flex-col lg:col-span-1 gap-8">
+						<ProfilePic onChangeFile={props.onChangeFile} type={props.type} fetchedImgLink={props.fetchedImgLink} />
+						<Name value={props.name} setValue={props.setName} />
+						<Description value={props.description} setValue={props.setDescription} />
+						<div className="flex justify-between gap-4 ">
+							<PrepTime value={props.prepTime} setValue={props.setPrepTime} />
+							<Servings value={props.servings} setValue={props.setServings} />
+						</div>
+						<FoodTypeComponent
+							type={props.type}
+							setFoodTypeId={props.setFoodTypeId}
+							optionsFoodType={optionsFoodType}
+							foodTypeId={props.foodTypeId!}
+						/>
+						<ToolsComponent type={props.type} setTools={props.setTools} tools={props.tools} />
+					</div>
+					{/* COL 2 */}
+					<div className="flex flex-col lg:col-span-2 gap-8 justify-between h-full">
+						{/* NEW INGREDIENT */}
+						<div id="CREATE-RECIPE-INGREDIENTS" className="flex flex-col w-full">
+							<h3 className="font-semibold text-lg text-primary">Ingredients</h3>
+							<div className="flex flex-col xl:flex-row gap-4 xl:items-end">
+								<label className="form-control w-full">
+									<div className="label">
+										<span className="label-text truncate">Name</span>
+									</div>
+									<Select
+										placeholder="Select ingredients"
+										onChange={(ingredient: SingleValue<{ value: string; label: string; unit: number }>) =>
+											props.handleSelectNewIngredient(ingredient!)
+										}
+										classNames={{
+											control: ({ isFocused }) =>
+												isFocused
+													? " w-full !bg-base-100 !border-2 !border-base-300  !h-12 !cursor-pointer !shadow-none"
+													: "!border-2 !border-transparent !bg-base-100 !h-12",
+											menuList: () => " bg-base-200 rounded-sm text-sm",
+											option: ({ isFocused, isSelected }) => (isSelected ? "!bg-primary text-white" : isFocused ? "!bg-primary/20" : ""),
+											placeholder: () => "text-sm !text-neutral-content",
+											singleValue: () => "text-sm !text-neutral-content",
+										}}
+										options={props.optionsIngredients}
+									/>
+								</label>
+								<label className="form-control w-full xl:max-w-16">
+									<div className="label">
+										<span className="label-text truncate">Quantity</span>
+									</div>
+									<input
+										type="number"
+										value={props.newIngredient.quantityForRecipe}
+										min={0}
+										onChange={(e) => props.setNewIngredient((prev: NewIngredient) => ({ ...prev, quantityForRecipe: Number(e.target.value) }))}
+										className="input w-full"
+									/>
+								</label>
+								<button className="btn btn-primary btn-outline" onClick={(e) => props.handleAddIngredient(e)}>
+									+
+								</button>
 							</div>
-							{/* COL 2 */}
-							<div className="flex flex-col lg:col-span-2 gap-8">
-								{/* NEW INGREDIENT */}
-								<div id="CREATE-RECIPE-INGREDIENTS" className="flex flex-col gap-2 w-full">
-									<h3 className="font-semibold text-lg text-primary">Ingredients</h3>
-									<div>
-										<label className="form-control w-full">
-											<div className="label">
-												<span className="label-text truncate">Name</span>
-											</div>
-											<Select
-												placeholder="Select ingredients"
-												onChange={(ingredient: SingleValue<{ value: string; label: string; unit: number }>) =>
-													props.handleSelectNewIngredient(ingredient!)
-												}
-												classNames={{
-													control: ({ isFocused }) =>
-														isFocused
-															? " w-full !bg-base-100 !border-2 !border-base-300  !h-12 !cursor-pointer !shadow-none"
-															: "!border-2 !border-transparent !bg-base-100 !h-12",
-													menuList: () => " bg-base-200 rounded-sm text-sm",
-													option: ({ isFocused, isSelected }) => (isSelected ? "!bg-primary text-white" : isFocused ? "!bg-primary/20" : ""),
-													placeholder: () => "text-sm !text-neutral-content",
-													singleValue: () => "text-sm !text-neutral-content",
-												}}
-												options={props.optionsIngredients}
-											/>
-										</label>
-										<label className="form-control w-full">
-											<div className="label">
-												<span className="label-text truncate">Quantity</span>
-											</div>
-											<input
-												type="number"
-												value={props.newIngredient.quantityForRecipe}
-												min={0}
-												onChange={(e) => props.setNewIngredient((prev: NewIngredient) => ({ ...prev, quantityForRecipe: Number(e.target.value) }))}
-												className="input w-full"
-											/>
-										</label>
-										<button className="btn btn-primary btn-outline" onClick={(e) => props.handleAddIngredient(e)}>
-											+
-										</button>
-									</div>
-									<div className="h-48 bg-base-100 mt-4 overflow-y-scroll rounded-sm">
-										{props.allIngredients.length === 0 ? (
-											<p className="h-full flex justify-center items-center text-sm">The ingredients will be displayed here.</p>
-										) : (
-											<>
-												<ol className="flex flex-col p-4 rounded-sm gap-4 w-full">
-													{props.allIngredients.map((ingredient, index) => {
-														return (
-															<li key={index}>
-																<div className="border-b w-full flex items-center gap-4 pb-1">
-																	<button onClick={(e) => props.handleIngredientDelete(e, index)} className="btn btn-primary  btn-xs ">
-																		<Delete theme="outline" size="12" />
-																	</button>
-																	<p className="text-sm">
-																		{ingredient.name} -{" "}
-																		<span>
-																			{ingredient.quantityForRecipe} {ingredient.unit}
-																		</span>
-																	</p>
-																</div>
-															</li>
-														);
-													})}
-												</ol>
-											</>
-										)}
-									</div>
-								</div>
-								{/* NEW INSTRUCTION */}
-								<div className="flex flex-col w-full">
-									<h3 className="font-semibold text-lg text-primary">Instructions</h3>
-									<div className="flex flex-col xl:flex-row gap-4 xl:items-end">
-										<label className="form-control w-full xl:max-w-24">
-											<div className="label">
-												<span className="label-text">Step</span>
-											</div>
-											<input
-												type="number"
-												min={1}
-												placeholder="1"
-												className="input w-full"
-												value={props.newInstruction.step}
-												onChange={(e) => props.handleInstructionChange(e)}
-												id={"step"}
-											/>
-										</label>
-										<label className="form-control w-full">
-											<div className="label">
-												<span className="label-text">Instruction</span>
-											</div>
-											<input
-												type="text"
-												placeholder="Insert instructions one by one."
-												className="input w-full"
-												value={props.newInstruction.instruction}
-												onChange={(e) => props.handleInstructionChange(e)}
-												id={"instruction"}
-											/>
-										</label>
-
-										<button className="btn btn-primary btn-outline" onClick={(e) => props.handleAddInstruction(e)}>
-											+
-										</button>
-									</div>
-									<div className="h-48 bg-base-100 mt-4 overflow-y-scroll rounded-sm">
-										{props.allInstructions.length === 0 ? (
-											<p className="h-full flex justify-center items-center text-sm">The instructions will be displayed here.</p>
-										) : (
-											<>
-												<ol className="flex flex-col p-4 rounded-sm gap-4 w-full">
-													{props.allInstructions.map((instruction, index) => {
-														return (
-															<li key={index}>
-																<div className="border-b w-full flex items-center gap-4 pb-1">
-																	<button onClick={(e) => props.handleDeleteInstruction(e, index)} className="btn btn-error  btn-xs ">
-																		<Delete theme="outline" size="12" />
-																	</button>
-																	<p className="text-sm">
-																		{instruction.step} - <span>{instruction.instruction}</span>
-																	</p>
-																</div>
-															</li>
-														);
-													})}
-												</ol>
-											</>
-										)}
-									</div>
-								</div>
-								{props.type === "create" && <ButtonSubmit status={props.isLoading ? "submitting" : "idle"} buttonText="Create recipe" />}
-								{props.type === "edit" && <ButtonSubmit status={props.isLoading ? "submitting" : "idle"} buttonText="Save changes" />}
+							<div className="h-48 bg-base-100 mt-4 overflow-y-scroll rounded-sm">
+								{props.allIngredients.length === 0 ? (
+									<p className="h-full flex justify-center items-center text-sm">The ingredients will be displayed here.</p>
+								) : (
+									<>
+										<ol className="flex flex-col p-4 rounded-sm gap-4 w-full">
+											{props.allIngredients.map((ingredient, index) => {
+												return (
+													<li key={index}>
+														<div className="border-b w-full flex items-center gap-4 pb-1">
+															<button onClick={(e) => props.handleIngredientDelete(e, index)} className="btn btn-error  btn-xs ">
+																<Delete theme="outline" size="12" />
+															</button>
+															<p className="text-sm">
+																{ingredient.name} -{" "}
+																<span>
+																	{ingredient.quantityForRecipe} {ingredient.unit}
+																</span>
+															</p>
+														</div>
+													</li>
+												);
+											})}
+										</ol>
+									</>
+								)}
 							</div>
 						</div>
-					</form>
-				</>
-			)}
+						{/* NEW INSTRUCTION */}
+						<div className="flex flex-col w-full">
+							<h3 className="font-semibold text-lg text-primary">Instructions</h3>
+							<div className="flex flex-col xl:flex-row gap-4 xl:items-end">
+								<label className="form-control w-full xl:max-w-24">
+									<div className="label">
+										<span className="label-text">Step</span>
+									</div>
+									<input
+										type="number"
+										min={1}
+										placeholder="1"
+										className="input w-full"
+										value={props.newInstruction.step}
+										onChange={(e) => props.handleInstructionChange(e)}
+										id={"step"}
+									/>
+								</label>
+								<label className="form-control w-full">
+									<div className="label">
+										<span className="label-text">Instruction</span>
+									</div>
+									<input
+										type="text"
+										placeholder="Insert instructions one by one."
+										className="input w-full"
+										value={props.newInstruction.instruction}
+										onChange={(e) => props.handleInstructionChange(e)}
+										id={"instruction"}
+									/>
+								</label>
+								<button className="btn btn-primary btn-outline" onClick={(e) => props.handleAddInstruction(e)}>
+									+
+								</button>
+							</div>
+							<div className="h-48 bg-base-100 mt-4 overflow-y-scroll rounded-sm">
+								{props.allInstructions.length === 0 ? (
+									<p className="h-full flex justify-center items-center text-sm">The instructions will be displayed here.</p>
+								) : (
+									<>
+										<ol className="flex flex-col p-4 rounded-sm gap-4 w-full">
+											{props.allInstructions.map((instruction, index) => {
+												return (
+													<li key={index}>
+														<div className="border-b w-full flex items-center gap-4 pb-1">
+															<button onClick={(e) => props.handleDeleteInstruction(e, index)} className="btn btn-error  btn-xs ">
+																<Delete theme="outline" size="12" />
+															</button>
+															<p className="text-sm">
+																{instruction.step} - <span>{instruction.instruction}</span>
+															</p>
+														</div>
+													</li>
+												);
+											})}
+										</ol>
+									</>
+								)}
+							</div>
+						</div>
+						<div className="">
+							{props.type === "create" && <ButtonSubmit status={props.isLoading ? "submitting" : "idle"} buttonText="Create recipe" />}
+							{props.type === "edit" && <ButtonSubmit status={props.isLoading ? "submitting" : "idle"} buttonText="Save changes" />}
+						</div>
+					</div>
+				</div>
+			</form>
 		</>
 	);
 };

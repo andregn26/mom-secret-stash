@@ -132,8 +132,8 @@ export const IngredientsForm = ({
 						required
 						value={fat!}
 						onChange={(e) => setFat(Number(e.target.value))}
-						min="0.0"
-						step="0.1"
+						min="0.00"
+						step="0.01"
 					/>
 				</label>
 				<label className="form-control w-full">
@@ -147,8 +147,8 @@ export const IngredientsForm = ({
 						required
 						value={carbs!}
 						onChange={(e) => setCarbs(Number(e.target.value))}
-						min="0.0"
-						step="0.1"
+						min="0.00"
+						step="0.01"
 					/>
 				</label>
 				<label className="form-control w-full">
@@ -162,8 +162,8 @@ export const IngredientsForm = ({
 						required
 						value={protein!}
 						onChange={(e) => setProtein(Number(e.target.value))}
-						min="0.0"
-						step="0.1"
+						min="0.00"
+						step="0.01"
 					/>
 				</label>
 				<label className="form-control w-full">
@@ -177,8 +177,8 @@ export const IngredientsForm = ({
 						required
 						value={fiber!}
 						onChange={(e) => setFiber(Number(e.target.value))}
-						min="0.0"
-						step="0.1"
+						min="0.00"
+						step="0.01"
 					/>
 				</label>
 			</div>

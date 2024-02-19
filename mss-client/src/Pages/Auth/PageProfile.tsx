@@ -26,7 +26,7 @@ export const PageProfile = () => {
 
 		const interval = setTimeout(() => {
 			fetchUserDetails();
-		}, 1500);
+		}, 1000);
 
 		return () => clearTimeout(interval);
 	}, [userId]);
@@ -62,7 +62,7 @@ export const PageProfile = () => {
 										<span className="text-sm">Recipes created</span>
 									</div>
 									<div className="flex flex-col items-center justify-center gap-1 px-4 sm:flex-row">
-										<span className="font-semibold text-neutral-content">300</span>
+										<span className="font-semibold text-neutral-content">{user?.favoriteRecipes.length}</span>
 										<span className="text-sm">Favorites</span>
 									</div>
 								</>

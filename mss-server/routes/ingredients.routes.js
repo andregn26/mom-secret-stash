@@ -36,6 +36,7 @@ router.get("/all", (req, res, next) => {
 
 router.put("/edit/:ingredientId", isAuthenticated, isUserAdmin, (req, res, next) => {
 	const { ingredientId } = req.params;
+	console.log("reqPayload", req.payload);
 	const { name, category, quantity, unit, calories, fat, carbs, protein, fiber } = req.body;
 
 	if (name === "") {

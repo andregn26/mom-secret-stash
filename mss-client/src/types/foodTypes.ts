@@ -1,9 +1,9 @@
-import { Recipe } from "./recipeTypes";
+import { RecipeFromDB } from "./recipeTypes";
 
-export type FoodType = {
+export type FoodTypeFromDB = {
 	createdAt: string;
 	name: string;
-	recipes: Recipe[];
+	recipes: RecipeFromDB[];
 	updatedAt: string;
 	_id: string;
 };

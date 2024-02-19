@@ -16,6 +16,7 @@ export const postLogin = (user: UserLogin) => {
 export const getVerify = (storedToken: string) => {
 	return axios.get(`${BASE_URL}/auth/verify`, { headers: { Authorization: `Bearer ${storedToken}` } });
 };
+
 export const getUserDetails = (userId: string) => {
 	return axios.get(`${BASE_URL}/profile/${userId}`, {
 		headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` },
@@ -26,15 +27,26 @@ export const postUpload = (data: FormData) => {
 	return axios.post(`${BASE_URL}/upload`, data);
 };
 
-// RECIPES: The CRUD operations are reserved to logged users
+// USER: The CRUD operations are reserved to logged users
 export const getMyRecipes = (userId: string) => {
 	return axios.get(`${BASE_URL}/profile/${userId}/my-recipes`, {
 		headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` },
 	});
 };
 
+export const getFavoriteRecipes = (userId: string) => {
+	return axios.get(`${BASE_URL}/profile/${userId}/favorites`, {
+		headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` },
+	});
+};
+
+// RECIPES: The CRUD operations are reserved to logged users
 export const getRecipe = (recipeId: string) => {
 	return axios.get(`${BASE_URL}/recipe/${recipeId}`);
+};
+
+export const getAllRecipes = () => {
+	return axios.get(`${BASE_URL}/recipe/all`);
 };
 
 export const postCreateRecipe = (newRecipe: PostAndPutRecipe) => {
@@ -51,6 +63,26 @@ export const deleteRecipe = (recipeId: string) => {
 
 export const getAllFoodTypes = () => {
 	return axios.get(`${BASE_URL}/food-types/all`);
+};
+
+export const putAddRecipeToFavorites = (recipeId: string) => {
+	return axios.put(
+		`${BASE_URL}/recipe/${recipeId}/add-to-favorite`,
+		{},
+		{
+			headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` },
+		}
+	);
+};
+
+export const putRemoveRecipeFromFavorites = (recipeId: string) => {
+	return axios.put(
+		`${BASE_URL}/recipe/${recipeId}/remove-from-favorite`,
+		{},
+		{
+			headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` },
+		}
+	);
 };
 
 // INGREDIENTS: The CRUD operations are reserved to Admin users

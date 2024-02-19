@@ -29,8 +29,6 @@ function getTokenFromHeaders(req) {
 		const token = req.headers.authorization.split(" ")[1];
 		return token;
 	}
-
-	return null;
 }
 
 // Export the middleware so that we can use it to create protected routes

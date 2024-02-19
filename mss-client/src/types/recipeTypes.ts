@@ -1,14 +1,15 @@
-import { FoodType } from "./foodTypes";
+import { FoodTypeFromDB } from "./foodTypes";
 import { User } from "./userTypes";
 
 export type RecipeFromDB = {
+	totalCaloriesPerServing: number;
 	_id: string;
 	imageUrl: string;
 	name: string;
 	description: string;
 	prepTime: number;
 	servings: number;
-	foodType: FoodType;
+	foodType: FoodTypeFromDB;
 	createdBy: User;
 	ingredients: {
 		_id: string;
@@ -25,8 +26,8 @@ export type RecipeFromDB = {
 			unit: string;
 			_id: string;
 		};
-		instructions: InstructionFromDB[];
 	}[];
+	instructions: InstructionFromDB[];
 };
 
 export type PostAndPutRecipe = {

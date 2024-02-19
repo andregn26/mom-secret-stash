@@ -13,6 +13,28 @@ router.get("/:userId/my-recipes", isAuthenticated, (req, res, next) => {
 		});
 });
 
+router.get("/:userId/favorites", isAuthenticated, async (req, res, next) => {
+	const userId = req.params.userId;
+	try {
+		const foundedUserFavoriteRecipes = await User.findById(userId, ["firstName", "lastName", "profileImg, favoriteRecipes"])
+			.populate("favoriteRecipes")
+			.populate({
+				path: "favoriteRecipes",
+				populate: {
+					path: "foodType",
+				},
+			});
+		console.log("🚀 ~ router.get ~ foundedUserFavoriteRecipes:", foundedUserFavoriteRecipes);
+		if (!foundedUserFavoriteRecipes) {
+			res.status(404).json({ debugMessage: "The id provided doesn't match with any user in the DB" });
+			return;
+		}
+		res.status(200).json({ debugMessage: "all good!", foundedUserFavoriteRecipes });
+	} catch (error) {
+		next(error);
+	}
+});
+
 router.get("/:userId", isAuthenticated, async (req, res, next) => {
 	const userId = req.params.userId;
 
@@ -21,8 +43,8 @@ router.get("/:userId", isAuthenticated, async (req, res, next) => {
 		if (!userFound) {
 			res.status(404).json({ message: "User not found!" });
 		}
-		const { _id, firstName, lastName, email, profileImg, isUserAdmin, createdRecipesCount, aboutMe } = userFound;
-		const userDetails = { _id, firstName, lastName, email, profileImg, isUserAdmin, createdRecipesCount, aboutMe };
+		const { _id, firstName, lastName, email, profileImg, isUserAdmin, createdRecipesCount, aboutMe, favoriteRecipes } = userFound;
+		const userDetails = { _id, firstName, lastName, email, profileImg, isUserAdmin, createdRecipesCount, aboutMe, favoriteRecipes };
 		res.status(200).json({ message: "User found!", userDetails });
 	} catch (error) {
 		next(error);
