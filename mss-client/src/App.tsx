@@ -3,7 +3,6 @@ import { Toaster } from "react-hot-toast";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { PageRegister } from "./Pages/Auth/PageRegister";
 import { PageLogin } from "@/Pages/Auth/PageLogin";
-import { PageMain } from "./Pages/PageMain";
 import { PageProfile } from "./Pages/Auth/PageProfile";
 import { TemplateNavigation } from "./Templates/TemplateNavigation";
 import { PageCreateRecipe } from "./Pages/Recipes/PageCreateRecipe";
