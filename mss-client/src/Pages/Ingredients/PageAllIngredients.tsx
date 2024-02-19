@@ -200,18 +200,18 @@ function Filter({ column, table }: { column: Column<any, unknown>; table: Table<
 		<div className="flex flex-col space-y-1 mt-1">
 			<DebouncedInput
 				type="number"
-				min={Number(column.getFacetedMinMaxValues()?.[0] ?? "")}
-				max={Number(column.getFacetedMinMaxValues()?.[1] ?? "")}
-				value={(columnFilterValue as [number, number])?.[0] ?? ""}
+				min={Number(column.getFacetedMinMaxValues()?.[0])}
+				max={Number(column.getFacetedMinMaxValues()?.[1])}
+				value={(columnFilterValue as [number, number])?.[0]}
 				onChange={(value) => column.setFilterValue((old: [number, number]) => [value, old?.[1]])}
 				placeholder={`Min (${column.getFacetedMinMaxValues()?.[0]})`}
 				className="w-20 border text-[10px] rounded"
 			/>
 			<DebouncedInput
 				type="number"
-				min={Number(column.getFacetedMinMaxValues()?.[0] ?? "")}
-				max={Number(column.getFacetedMinMaxValues()?.[1]) + 1 ?? ""}
-				value={(columnFilterValue as [number, number])?.[1] ?? ""}
+				min={Number(column.getFacetedMinMaxValues()?.[0])}
+				max={Number(column.getFacetedMinMaxValues()?.[1]) + 1}
+				value={(columnFilterValue as [number, number])?.[1]}
 				onChange={(value) => column.setFilterValue((old: [number, number]) => [old?.[0], value])}
 				placeholder={`Max ${column.getFacetedMinMaxValues()?.[1] ? `(${column.getFacetedMinMaxValues()?.[1]})` : ""}`}
 				className="w-20 border text-[10px] rounded"
