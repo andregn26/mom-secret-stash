@@ -1,3 +1,5 @@
+import { NavigationHeader } from "@/Components/Molecules/NavigationHeader";
+import { RecipeCard } from "@/Components/Organisms/Recipes/RecipeCard";
 import { getAllRecipes } from "@/api";
 import React, { useEffect, useState } from "react";
 
@@ -11,7 +13,7 @@ export const PageExplore = (props: Props) => {
 		const callAPIFavoriteRecipes = async () => {
 			try {
 				const fetchedFavoriteRecipes = await getAllRecipes();
-				setDataFromAPI(fetchedFavoriteRecipes.data);
+				setDataFromAPI(fetchedFavoriteRecipes.data.allRecipes);
 			} catch (error) {
 				console.log(error);
 			}
@@ -21,8 +23,17 @@ export const PageExplore = (props: Props) => {
 	}, []);
 
 	return (
-		<div className="flex lfex-col gap-8">
-			<pre className="text-xs">{JSON.stringify(dataFromAPI, null, 2)}</pre>
-		</div>
+		<>
+			<NavigationHeader pageName="Explore Recipes" />{" "}
+			<div className="gap-x-4 gap-y-8 grid grid-cols-[repeat(auto-fill,_minmax(250px,_1fr))] w-full justify-items-center">
+				{dataFromAPI && (
+					<>
+						{dataFromAPI.map((recipe) => (
+							<RecipeCard key={recipe._id} data={recipe} />
+						))}
+					</>
+				)}
+			</div>
+		</>
 	);
 };

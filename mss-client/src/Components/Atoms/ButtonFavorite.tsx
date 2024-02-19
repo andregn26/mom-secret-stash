@@ -15,16 +15,17 @@ export const ButtonFavorite = ({ recipeId }: Props) => {
 	console.log("🚀 ~ ButtonFavorite ~ isRecipeIdInUserFavoriteList:", isRecipeIdInUserFavoriteList);
 
 	useEffect(() => {
-		setRenderAgain(false);
-		if (!user) throw Error("userId not defined!");
-		const callGetUserDetails = async () => {
-			const userDetails = await getUserDetails(user._id);
-			console.log("🚀 ~ callGetUserDetails ~ userDetails:", userDetails);
-			if (userDetails) {
-				setIsRecipeIdInUserFavoriteList((userDetails.data.userDetails.favoriteRecipes as string[]).includes(recipeId));
-			}
-		};
-		callGetUserDetails();
+		if (user) {
+			setRenderAgain(false);
+			const callGetUserDetails = async () => {
+				const userDetails = await getUserDetails(user._id);
+				console.log("🚀 ~ callGetUserDetails ~ userDetails:", userDetails);
+				if (userDetails) {
+					setIsRecipeIdInUserFavoriteList((userDetails.data.userDetails.favoriteRecipes as string[]).includes(recipeId));
+				}
+			};
+			callGetUserDetails();
+		}
 	}, [user, recipeId, renderAgain]);
 
 	const handleRecipeInFavorites = async () => {
@@ -44,13 +45,19 @@ export const ButtonFavorite = ({ recipeId }: Props) => {
 	};
 
 	return (
-		<div className="">
-			<Like
-				theme={!isRecipeIdInUserFavoriteList ? "outline" : "filled"}
-				size="24"
-				className="text-error btn btn-ghost"
-				onClick={handleRecipeInFavorites}
-			/>
-		</div>
+		<>
+			{user ? (
+				<Like
+					theme={!isRecipeIdInUserFavoriteList ? "outline" : "filled"}
+					size="24"
+					className="text-error btn btn-ghost"
+					onClick={handleRecipeInFavorites}
+				/>
+			) : (
+				<span className="tooltip tooltip-accent" data-tip="Login to add to favorites">
+					<Like theme={"filled"} size="24" className="text-error btn btn-ghost btn-disabled" />
+				</span>
+			)}
+		</>
 	);
 };
