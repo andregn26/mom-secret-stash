@@ -27,7 +27,6 @@ router.post("/create", isAuthenticated, isUserAdmin, (req, res, next) => {
 
 router.get("/all", (req, res, next) => {
 	Ingredient.find({})
-		.sort({ name: "asc" })
 		.then((foundedIngredients) => {
 			res.status(200).json({ message: "Ingredients founded", foundedIngredients });
 		})
