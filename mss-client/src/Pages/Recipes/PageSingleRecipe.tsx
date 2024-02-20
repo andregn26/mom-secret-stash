@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import { AlarmClock, EveryUser } from "@icon-park/react";
 import { useFetchSingleRecipe } from "@/hooks/useFetchSingleRecipe";
 import { ButtonFavorite } from "@/Components/Atoms/ButtonFavorite";
+import { LazyLoadImage } from "react-lazy-load-image-component";
+import "react-lazy-load-image-component/src/effects/blur.css";
 
 export const PageSingleRecipe = () => {
 	const { recipeId } = useParams();
@@ -26,10 +28,21 @@ export const PageSingleRecipe = () => {
 					<figure className="relative w-full  md:max-w-[400px] h-[300px]  rounded-sm overflow-hidden">
 						{!isLoading ? (
 							<>
-								<img
+								{/* <img
+									loading="lazy"
+									height={400}
+									width={300}
 									className="object-cover  h-[300px] w-full md:max-w-[400px]"
 									src={singleRecipeFromAPI.imageUrl}
 									alt={`${singleRecipeFromAPI.name}`}
+								/> */}
+								<LazyLoadImage
+									height={400}
+									width={800}
+									className="object-cover object-center h-[300px] w-full md:max-w-[400px]"
+									alt={singleRecipeFromAPI.imageUrl}
+									effect="blur"
+									src={singleRecipeFromAPI.imageUrl}
 								/>
 								<div className="absolute bottom-2 left-2 z-10">
 									<Link to={"/"} className="badge badge-accent  ">
