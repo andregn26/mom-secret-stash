@@ -4,7 +4,7 @@ const FoodType = require("../models/FoodType.model");
 const Ingredient = require("../models/Ingredient.model");
 const User = require("../models/User.model");
 const { isAuthenticated } = require("../middleware/jwt.middleware");
-const { calculateTotalFat, calculateTotalCarbs, calculateTotalProtein, calculateTotalFiber } = require("../services/recipeService");
+const calculateTotalNutrient = require("../services/recipeService");
 
 router.get("/all", (req, res, next) => {
 	Recipe.find({})
@@ -75,10 +75,12 @@ router.post("/create", async (req, res, next) => {
 
 router.get("/:recipeId", async (req, res, next) => {
 	const { recipeId } = req.params;
-	const totalFat = await calculateTotalFat(recipeId);
-	const totalCarbs = await calculateTotalCarbs(recipeId);
-	const totalProtein = await calculateTotalProtein(recipeId);
-	const totalFiber = await calculateTotalFiber(recipeId);
+	const [totalFat, totalCarbs, totalProtein, totalFiber] = await Promise.all([
+		calculateTotalNutrient(recipeId, "fat"),
+		calculateTotalNutrient(recipeId, "carbs"),
+		calculateTotalNutrient(recipeId, "protein"),
+		calculateTotalNutrient(recipeId, "fiber"),
+	]);
 	const recipeCaloriesStats = {
 		totalFat,
 		totalCarbs,
