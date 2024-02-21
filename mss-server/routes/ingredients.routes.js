@@ -25,8 +25,9 @@ router.post("/create", isAuthenticated, isUserAdmin, (req, res, next) => {
 		.catch((error) => next(error));
 });
 
-router.get("/all", (req, res, next) => {
+router.get("/all", async (req, res, next) => {
 	Ingredient.find({})
+		.sort({ updatedAt: -1 })
 		.then((foundedIngredients) => {
 			res.status(200).json({ message: "Ingredients founded", foundedIngredients });
 		})

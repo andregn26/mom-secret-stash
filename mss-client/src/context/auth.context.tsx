@@ -5,7 +5,7 @@ import { User } from "@/types/userTypes";
 interface AuthContextValue {
 	isLoggedIn: boolean;
 	isLoading: boolean;
-	user: User | null;
+	userInSession: User | null;
 	storeToken: (arg: string) => void;
 	authenticateUser: () => void;
 	logoutUser: () => void;
@@ -20,7 +20,7 @@ const AuthContext = createContext<AuthContextValue>(null!);
 function AuthProviderWrapper(props: Props) {
 	const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
-	const [user, setUser] = useState<User | null>(null);
+	const [userInSession, setUserInSession] = useState<User | null>(null);
 
 	const navigate = useNavigate();
 
@@ -49,25 +49,27 @@ function AuthProviderWrapper(props: Props) {
 				// Update state variables
 				setIsLoggedIn(true);
 				setIsLoading(false);
-				setUser(user);
+				setUserInSession(user);
 			} catch (error) {
 				// If the server sends an error response (invalid token)
 				// Update state variables
 				setIsLoggedIn(false);
 				setIsLoading(false);
-				setUser(null);
+				setUserInSession(null);
 				console.log(error);
 			}
 		} else {
 			// If the token is not available (or is removed)
 			setIsLoggedIn(false);
 			setIsLoading(false);
-			setUser(null);
+			setUserInSession(null);
 		}
 	};
 
 	return (
-		<AuthContext.Provider value={{ isLoggedIn, isLoading, user, storeToken, authenticateUser, logoutUser }}>{props.children}</AuthContext.Provider>
+		<AuthContext.Provider value={{ isLoggedIn, isLoading, userInSession, storeToken, authenticateUser, logoutUser }}>
+			{props.children}
+		</AuthContext.Provider>
 	);
 }
 

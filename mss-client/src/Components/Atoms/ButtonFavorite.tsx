@@ -9,16 +9,16 @@ type Props = {
 };
 
 export const ButtonFavorite = ({ recipeId }: Props) => {
-	const { user } = useContext(AuthContext);
+	const { userInSession } = useContext(AuthContext);
 	const [isRecipeIdInUserFavoriteList, setIsRecipeIdInUserFavoriteList] = useState<boolean>(false);
 	const [renderAgain, setRenderAgain] = useState<boolean>(false);
 	console.log("🚀 ~ ButtonFavorite ~ isRecipeIdInUserFavoriteList:", isRecipeIdInUserFavoriteList);
 
 	useEffect(() => {
-		if (user) {
+		if (userInSession) {
 			setRenderAgain(false);
 			const callGetUserDetails = async () => {
-				const userDetails = await getUserDetails(user._id);
+				const userDetails = await getUserDetails(userInSession._id);
 				console.log("🚀 ~ callGetUserDetails ~ userDetails:", userDetails);
 				if (userDetails) {
 					setIsRecipeIdInUserFavoriteList((userDetails.data.userDetails.favoriteRecipes as string[]).includes(recipeId));
@@ -26,7 +26,7 @@ export const ButtonFavorite = ({ recipeId }: Props) => {
 			};
 			callGetUserDetails();
 		}
-	}, [user, recipeId, renderAgain]);
+	}, [userInSession, recipeId, renderAgain]);
 
 	const handleRecipeInFavorites = async () => {
 		try {
@@ -46,7 +46,7 @@ export const ButtonFavorite = ({ recipeId }: Props) => {
 
 	return (
 		<>
-			{user ? (
+			{userInSession ? (
 				<Like
 					theme={!isRecipeIdInUserFavoriteList ? "outline" : "filled"}
 					size="24"

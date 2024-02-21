@@ -4,7 +4,7 @@ import { RecipeFromDB } from "@/types/recipeTypes";
 import { useEffect, useState, useContext } from "react";
 
 export const useFetchMyRecipes = (userId: string | undefined) => {
-	const { user } = useContext(AuthContext);
+	const { userInSession } = useContext(AuthContext);
 	const [isUserInSession, setIsUserInSession] = useState<boolean>(false);
 	const [myRecipesFromDB, setMyRecipesFromDB] = useState<RecipeFromDB[] | null>(null);
 	const [isLoadingMyRecipesFromDB, setIsLoadingMyRecipesFromDB] = useState<boolean>(false);
@@ -16,7 +16,7 @@ export const useFetchMyRecipes = (userId: string | undefined) => {
 		setIsLoadingMyRecipesFromDB(true);
 		const getRecipeFromAPI = async () => {
 			if (userId) {
-				if (userId === user?._id) {
+				if (userId === userInSession?._id) {
 					setIsUserInSession(true);
 					try {
 						const recipesFetched = await getMyRecipes(userId);
@@ -25,19 +25,18 @@ export const useFetchMyRecipes = (userId: string | undefined) => {
 					} catch (error) {
 						console.log(error);
 						setIsMyRecipesFetchingSuccess(false);
+					} finally {
+						setIsLoadingMyRecipesFromDB(false);
 					}
-					// finally {
-					// 	setIsLoadingMyRecipesFromDB(false);
-					// }
 				}
 			}
 		};
 		getRecipeFromAPI();
-		const timer = setTimeout(() => {
-			setIsLoadingMyRecipesFromDB(false);
-		}, 700);
-		return () => clearTimeout(timer);
-	}, [user?._id, userId, forceUseEffect]);
+		// const timer = setTimeout(() => {
+		// 	setIsLoadingMyRecipesFromDB(false);
+		// }, 700);
+		// return () => clearTimeout(timer);
+	}, [userInSession?._id, userId, forceUseEffect]);
 
 	return { isUserInSession, setForceUseEffect, myRecipesFromDB, isLoadingMyRecipesFromDB, isMyRecipesFetchingSuccess };
 };

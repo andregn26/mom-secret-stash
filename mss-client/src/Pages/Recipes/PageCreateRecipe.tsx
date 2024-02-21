@@ -12,7 +12,7 @@ import { useFetchAllFoodTypes } from "@/hooks/useFetchAllFoodTypes";
 
 export const PageCreateRecipe = () => {
 	const navigate = useNavigate();
-	const { user } = useContext(AuthContext);
+	const { userInSession } = useContext(AuthContext);
 	// STATE - PRIMITIVE VALUES
 	const [fileImg, setFileImg] = useState<File | null>(null);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -125,7 +125,7 @@ export const PageCreateRecipe = () => {
 				return postCreateRecipe({
 					name,
 					description,
-					createdBy: user!._id,
+					createdBy: userInSession!._id,
 					instructions: allInstructions,
 					ingredients: allIngredients.map(({ ingredientId, quantityForRecipe }) => ({ ingredient: ingredientId, quantityForRecipe })),
 					foodType: foodTypeId,
@@ -138,7 +138,7 @@ export const PageCreateRecipe = () => {
 			.then((res) => {
 				console.log(res);
 				toast.success(res.data.message);
-				navigate(`/${user!._id}/my-recipes`);
+				navigate(`/${userInSession!._id}/my-recipes`);
 			})
 			.catch((error) => toast.error(error.response.data.message))
 			.finally(() => {

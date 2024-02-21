@@ -37,7 +37,7 @@ const NavLinkItem = ({ to, handleClick, icon, linkName }: NavLinkItemProps) => {
 };
 
 export const TemplateNavigation = ({ children }: TemplateNavigationProps) => {
-	const { isLoggedIn, logoutUser, user } = useContext(AuthContext);
+	const { isLoggedIn, logoutUser, userInSession } = useContext(AuthContext);
 	const [isProfileMenuOpen, setIsProfileMenuOpen] = useState<boolean>(false);
 	const [isAsideOpen, setIsAsideOpen] = useState<boolean>(false);
 
@@ -70,10 +70,15 @@ export const TemplateNavigation = ({ children }: TemplateNavigationProps) => {
 						<div>
 							<h3 className="mb-4 ml-4 text-sm font-semibold text-primary-content/50">MENU</h3>
 							<ul className="mb-6 flex flex-col gap-1.5">
-								<NavLinkItem to={`/profile/${user?._id}`} linkName="Profile" handleClick={setIsAsideOpen} icon={<User theme="outline" size="18" />} />
+								<NavLinkItem
+									to={`/profile/${userInSession?._id}`}
+									linkName="Profile"
+									handleClick={setIsAsideOpen}
+									icon={<User theme="outline" size="18" />}
+								/>
 								<NavLinkItem to="/explore" linkName="Explore" handleClick={setIsAsideOpen} icon={<ChefHatOne theme="outline" size="18" />} />
 								<NavLinkItem
-									to={`/${user?._id}/my-recipes`}
+									to={`/${userInSession?._id}/my-recipes`}
 									linkName="My recipes"
 									handleClick={setIsAsideOpen}
 									icon={<Cook theme="outline" size="18" />}
@@ -123,8 +128,7 @@ export const TemplateNavigation = ({ children }: TemplateNavigationProps) => {
 						<div className=" w-full flex justify-end">
 							{isLoggedIn ? (
 								<NavigationProfile
-									user={user}
-									setIsProfileMenuOpen={setIsProfileMenuOpen}
+									user={userInSession}
 									handleProfileMenuOpen={handleProfileMenuOpen}
 									logoutUser={logoutAndCloseMenu}
 									isProfileMenuOpen={isProfileMenuOpen}

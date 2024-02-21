@@ -6,7 +6,7 @@ import { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 export const useFetchFavoriteRecipes = () => {
-	const { user } = useContext(AuthContext);
+	const { userInSession } = useContext(AuthContext);
 	const [favoriteRecipesFromDB, setFavoriteRecipesFromDB] = useState<RecipeFromDB[] | null>(null);
 	const [isLoadingFavoriteRecipesFromDB, setIsLoadingFavoriteRecipesFromDB] = useState<boolean>(false);
 	const [isFoodTypesFetchingSuccess, setIsFoodTypesFetchingSuccess] = useState<boolean>(true);
@@ -15,8 +15,8 @@ export const useFetchFavoriteRecipes = () => {
 		setIsLoadingFavoriteRecipesFromDB(true);
 		const callAPIFavoriteRecipes = async () => {
 			try {
-				if (!user) throw Error("user id not defined!");
-				const fetchedFavoriteRecipes = await getFavoriteRecipes(`${user._id}`);
+				if (!userInSession) throw Error("userInSession id not defined!");
+				const fetchedFavoriteRecipes = await getFavoriteRecipes(`${userInSession._id}`);
 				setFavoriteRecipesFromDB(fetchedFavoriteRecipes.data.foundedUserFavoriteRecipes.favoriteRecipes);
 			} catch (error: unknown) {
 				if (axios.isAxiosError(error)) {
@@ -25,14 +25,16 @@ export const useFetchFavoriteRecipes = () => {
 					toast.error("Something went wrong!");
 				}
 				setIsFoodTypesFetchingSuccess(false);
+			} finally {
+				setIsLoadingFavoriteRecipesFromDB(false);
 			}
 		};
 		callAPIFavoriteRecipes();
-		const timer = setTimeout(() => {
-			setIsLoadingFavoriteRecipesFromDB(false);
-		}, 4000);
-		return () => clearTimeout(timer);
-	}, [user]);
+		// const timer = setTimeout(() => {
+		// 	setIsLoadingFavoriteRecipesFromDB(false);
+		// }, 4000);
+		// return () => clearTimeout(timer);
+	}, [userInSession]);
 
 	return { favoriteRecipesFromDB, isLoadingFavoriteRecipesFromDB, isFoodTypesFetchingSuccess };
 };

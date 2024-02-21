@@ -15,7 +15,7 @@ import { useFetchAllFoodTypes } from "@/hooks/useFetchAllFoodTypes";
 export const PageEditRecipe = () => {
 	const { recipeId } = useParams();
 	const navigate = useNavigate();
-	const { user } = useContext(AuthContext);
+	const { userInSession } = useContext(AuthContext);
 	// STATE - PRIMITIVE VALUES
 	const [fileImg, setFileImg] = useState<File | null>(null);
 	const [fetchedImgLink, setFetchedImgLink] = useState<string>("");
@@ -164,7 +164,6 @@ export const PageEditRecipe = () => {
 				throw Error;
 			}
 			const res = await putEditRecipe(recipeId, {
-				// createdBy: user!._id,
 				imageUrl: imageUrl,
 				name: editedName,
 				description: editedDescription,
@@ -184,7 +183,7 @@ export const PageEditRecipe = () => {
 			console.log(error);
 		} finally {
 			setIsLoading(false);
-			navigate(`/${user!._id}/my-recipes`);
+			navigate(`/${userInSession!._id}/my-recipes`);
 		}
 	};
 	return (

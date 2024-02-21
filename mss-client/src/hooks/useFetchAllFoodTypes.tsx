@@ -17,16 +17,15 @@ export const useFetchAllFoodTypes = () => {
 			} catch (error) {
 				console.log(error);
 				setIsFoodTypesFetchingSuccess(false);
+			} finally {
+				setIsLoadingFoodTypesFromDB(false);
 			}
-			// finally {
-			// 	setIsLoadingFoodTypesFromDB(false);
-			// }
 		};
 		getFoodTypesFromAPI();
-		const timer = setTimeout(() => {
-			setIsLoadingFoodTypesFromDB(false);
-		}, 1000);
-		return () => clearTimeout(timer);
+		// const timer = setTimeout(() => {
+		// 	setIsLoadingFoodTypesFromDB(false);
+		// }, 1000);
+		// return () => clearTimeout(timer);
 	}, []);
 
 	return { allFoodTypesFromDB, isLoadingFoodTypesFromDB, isFoodTypesFetchingSuccess };
