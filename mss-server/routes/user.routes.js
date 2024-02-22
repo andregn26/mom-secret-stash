@@ -24,7 +24,6 @@ router.get("/:userId/favorites", isAuthenticated, async (req, res, next) => {
 					path: "foodType",
 				},
 			});
-		console.log("🚀 ~ router.get ~ foundedUserFavoriteRecipes:", foundedUserFavoriteRecipes);
 		if (!foundedUserFavoriteRecipes) {
 			res.status(404).json({ debugMessage: "The id provided doesn't match with any user in the DB" });
 			return;

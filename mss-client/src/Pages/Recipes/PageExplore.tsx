@@ -1,39 +1,29 @@
 import { NavigationHeader } from "@/Components/Molecules/NavigationHeader";
 import { RecipeCard } from "@/Components/Organisms/Recipes/RecipeCard";
-import { getAllRecipes } from "@/api";
-import React, { useEffect, useState } from "react";
+import { useFetchAllRecipes } from "@/hooks/useFetchAllRecipes";
 
-type Props = {};
+export const PageExplore = () => {
+	const { allRecipesFromDB, isLoadingAllRecipesFromDB, isAllRecipesFromDBSuccess } = useFetchAllRecipes();
+	const isLoading = !allRecipesFromDB || isLoadingAllRecipesFromDB;
 
-export const PageExplore = (props: Props) => {
-	const [dataFromAPI, setDataFromAPI] = useState(null);
-	console.log("🚀 ~ PageExplore ~ dataFromAPI:", dataFromAPI);
-
-	useEffect(() => {
-		const callAPIFavoriteRecipes = async () => {
-			try {
-				const fetchedFavoriteRecipes = await getAllRecipes();
-				setDataFromAPI(fetchedFavoriteRecipes.data.allRecipes);
-			} catch (error) {
-				console.log(error);
-			}
-		};
-
-		callAPIFavoriteRecipes();
-	}, []);
+	if (!isAllRecipesFromDBSuccess) return <div>Something went wrong while loading data</div>;
 
 	return (
 		<>
-			<NavigationHeader pageName="Explore Recipes" />{" "}
-			<div className="gap-x-4 gap-y-8 grid grid-cols-[repeat(auto-fill,_minmax(250px,_1fr))] w-full justify-items-center">
-				{dataFromAPI && (
-					<>
-						{dataFromAPI.map((recipe) => (
-							<RecipeCard key={recipe._id} data={recipe} />
-						))}
-					</>
-				)}
-			</div>
+			<NavigationHeader pageName="Explore Recipes" />
+			{!isLoading ? (
+				<div className="gap-x-4 gap-y-8 grid grid-cols-[repeat(auto-fill,_minmax(250px,_1fr))] w-full justify-items-center">
+					{allRecipesFromDB.map((recipe) => (
+						<RecipeCard key={recipe._id} data={recipe} />
+					))}
+				</div>
+			) : (
+				<div className="gap-x-4 gap-y-8 grid grid-cols-[repeat(auto-fill,_minmax(250px,_1fr))] w-full justify-items-center">
+					{[...Array(8)].map((_, i) => {
+						return <div key={i} className="skeleton w-[250px] h-80"></div>;
+					})}
+				</div>
+			)}
 		</>
 	);
 };
