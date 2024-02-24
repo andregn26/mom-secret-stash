@@ -1,6 +1,5 @@
 const User = require("../models/User.model");
 const bcrypt = require("bcrypt");
-// ℹ️ Handles password encryption
 const jwt = require("jsonwebtoken");
 
 exports.postSignup = async (req, res, next) => {

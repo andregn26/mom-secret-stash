@@ -1,22 +1,24 @@
+import { BackendError } from "@/Components/Molecules/BackendError";
 import { NavigationHeader } from "@/Components/Molecules/NavigationHeader";
 import { RecipeCard } from "@/Components/Organisms/Recipes/RecipeCard";
 import { useFetchFavoriteRecipes } from "@/hooks/useFetchFavoriteRecipes";
 import { NavLink } from "react-router-dom";
 
 export const PageFavorites = () => {
-	const { favoriteRecipesFromDB, isLoadingFavoriteRecipesFromDB, isFoodTypesFetchingSuccess } = useFetchFavoriteRecipes();
-	console.log("🚀 ~ PageFavorites ~ favoriteRecipesFromDB:", favoriteRecipesFromDB);
-	const isLoading = !favoriteRecipesFromDB || isLoadingFavoriteRecipesFromDB;
+	const { favoriteRecipesFromDB, isLoadingFavoriteRecipesFromDB, errorFromAxios } = useFetchFavoriteRecipes();
+
+	if (!favoriteRecipesFromDB && !isLoadingFavoriteRecipesFromDB) return <BackendError errorFromAxios={errorFromAxios} />;
 
 	return (
 		<>
 			<NavigationHeader pageName="My Favorites" />
-			{!isLoading ? (
+			{!isLoadingFavoriteRecipesFromDB && favoriteRecipesFromDB ? (
 				<>
-					{" "}
 					{favoriteRecipesFromDB.length === 0 ? (
-						<div>
-							You don't have any recipe in your favorites list. Start exploring to see the best recipes!
+						<div className="h-full grow flex flex-col justify-center items-center gap-8">
+							<p className="text-lg font-semibold text-center h-full">
+								You don't have any recipe in your favorites list. <br /> Start exploring to see the best recipes!
+							</p>
 							<NavLink className="btn btn-primary" to={"/explore"}>
 								Explore recipes
 							</NavLink>

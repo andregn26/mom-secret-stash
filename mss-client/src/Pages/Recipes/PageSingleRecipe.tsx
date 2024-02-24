@@ -39,7 +39,9 @@ export const PageSingleRecipe = () => {
 									</Link>
 								</div>
 								<div className="absolute top-2 left-2  max-w-xs bg-base-200/80 px-4 py-2 rounded-sm border mx-auto">
-									<div className=" flex items-center gap-8 flex-row-reverse justify-between">
+									<Link
+										className="flex items-center gap-8 flex-row-reverse justify-between"
+										to={`../../profile/${singleRecipeFromAPI.createdBy._id}`}>
 										<figure className="hidden sm:block w-10 h-10 overflow-hidden rounded-full">
 											<img
 												className="object-cover w-full h-full"
@@ -53,7 +55,7 @@ export const PageSingleRecipe = () => {
 												{singleRecipeFromAPI.createdBy.firstName} {singleRecipeFromAPI.createdBy.lastName}
 											</span>
 										</div>
-									</div>
+									</Link>
 								</div>
 							</>
 						) : (

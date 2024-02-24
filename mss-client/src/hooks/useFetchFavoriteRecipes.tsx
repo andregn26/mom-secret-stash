@@ -1,30 +1,34 @@
 import { getFavoriteRecipes } from "@/api";
 import { AuthContext } from "@/context/auth.context";
 import { RecipeFromDB } from "@/types/recipeTypes";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useContext, useEffect, useState } from "react";
-import toast from "react-hot-toast";
 
 export const useFetchFavoriteRecipes = () => {
 	const { userInSession } = useContext(AuthContext);
 	const [favoriteRecipesFromDB, setFavoriteRecipesFromDB] = useState<RecipeFromDB[] | null>(null);
 	const [isLoadingFavoriteRecipesFromDB, setIsLoadingFavoriteRecipesFromDB] = useState<boolean>(false);
-	const [isFoodTypesFetchingSuccess, setIsFoodTypesFetchingSuccess] = useState<boolean>(true);
+	const [isFavoriteRecipesFetchingSuccess, setIsFavoriteRecipesFetchingSuccess] = useState<boolean>(true);
+	const [errorFromAxios, setErrorFromAxios] = useState<AxiosError | null>(null);
 
 	useEffect(() => {
 		setIsLoadingFavoriteRecipesFromDB(true);
 		const callAPIFavoriteRecipes = async () => {
 			try {
-				if (!userInSession) throw Error("userInSession id not defined!");
-				const fetchedFavoriteRecipes = await getFavoriteRecipes(`${userInSession._id}`);
-				setFavoriteRecipesFromDB(fetchedFavoriteRecipes.data.foundedUserFavoriteRecipes.favoriteRecipes);
+				if (!userInSession) {
+					setIsLoadingFavoriteRecipesFromDB(false);
+					setIsFavoriteRecipesFetchingSuccess(false);
+					throw Error("userInSession id not defined!");
+				}
+				const favoriteRecipesFetched = await getFavoriteRecipes(`${userInSession._id}`);
+				setFavoriteRecipesFromDB(favoriteRecipesFetched.data.data.favoriteRecipes);
+				console.info(favoriteRecipesFetched.data.debugMessage);
 			} catch (error: unknown) {
 				if (axios.isAxiosError(error)) {
-					console.log(error);
-				} else {
-					toast.error("Something went wrong!");
+					setErrorFromAxios(error);
 				}
-				setIsFoodTypesFetchingSuccess(false);
+				console.warn(error);
+				setIsFavoriteRecipesFetchingSuccess(false);
 			} finally {
 				setIsLoadingFavoriteRecipesFromDB(false);
 			}
@@ -36,5 +40,5 @@ export const useFetchFavoriteRecipes = () => {
 		// return () => clearTimeout(timer);
 	}, [userInSession]);
 
-	return { favoriteRecipesFromDB, isLoadingFavoriteRecipesFromDB, isFoodTypesFetchingSuccess };
+	return { favoriteRecipesFromDB, isLoadingFavoriteRecipesFromDB, isFavoriteRecipesFetchingSuccess, errorFromAxios };
 };

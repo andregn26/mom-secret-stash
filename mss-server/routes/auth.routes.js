@@ -1,6 +1,5 @@
 const router = require("express").Router();
 const authController = require("../controllers/authController");
-// Require necessary (isAuthenticated) middleware in order to control access to specific routes
 const { isAuthenticated } = require("../middleware/jwt.middleware.js");
 
 // POST /auth/signup  - Creates a new user in the database
