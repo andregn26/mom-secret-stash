@@ -81,7 +81,7 @@ router.get("/:ingredientId", (req, res, next) => {
 
 	Ingredient.findById(ingredientId)
 		.then((foundedIngredient) => {
-			res.status(200).json({ message: "Ingredient founded!", foundedIngredient });
+			res.status(200).json({ message: "Ingredient founded!", data: foundedIngredient });
 		})
 		.catch((error) => {
 			next(error);

@@ -1,14 +1,6 @@
 const router = require("express").Router();
-const FoodType = require("../models/FoodType.model");
+const foodTypeController = require("../controllers/foodTypeController");
 
+router.route("/all").get(foodTypeController.getAllFoodTypes);
 
-
-router.get("/all", (req, res, next) => {
-	FoodType.find({}).populate("recipes")
-		.then((foodTypeFound) => {
-			return res.status(200).json({ message: "All food types found!", foodType: foodTypeFound });
-		})
-		.catch((error) => next(error));
-});
-
-module.exports = router
+module.exports = router;

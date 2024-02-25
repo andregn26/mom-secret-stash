@@ -26,44 +26,24 @@ type IngredientsFormProps = {
 	isDelete?: boolean;
 };
 
-export const IngredientsForm = ({
-	onSubmit,
-	name,
-	setName,
-	category,
-	setCategory,
-	quantity,
-	setQuantity,
-	unit,
-	setUnit,
-	calories,
-	setCalories,
-	fat,
-	setFat,
-	carbs,
-	setCarbs,
-	protein,
-	setProtein,
-	fiber,
-	setFiber,
-	isLoading,
-	btnText,
-}: IngredientsFormProps) => {
+export const IngredientsForm = (props: IngredientsFormProps) => {
 	return (
-		<form onSubmit={(e) => onSubmit(e)} className="p-4 md:p-6 xl:p-8 2xl:p-10 bg-neutral shadow-sm border w-full rounded-md flex flex-col gap-4">
+		<form
+			onSubmit={(e) => props.onSubmit(e)}
+			className="p-4 md:p-6 xl:p-8 2xl:p-10 bg-neutral shadow-sm border w-full rounded-md flex flex-col gap-4">
 			{/* NAME, CATEGORY  */}
 			<div className="flex gap-4">
 				<label className="form-control w-full">
 					<div className="label">
 						<span className="label-text">Name</span>
 					</div>
-					<input className="input w-full" id="ingredient-name" type="text" value={name} onChange={(e) => setName(e.target.value)} />
+					<input className="input w-full" id="ingredient-name" type="text" value={props.name} onChange={(e) => props.setName(e.target.value)} />
 				</label>
 				<label className="form-control w-full">
 					<div className="label">
 						<span className="label-text">Pick category</span>
 					</div>
-					<select className="select" id="ingredient-category" required value={category} onChange={(e) => setCategory(e.target.value)}>
+					<select className="select" id="ingredient-category" required value={props.category} onChange={(e) => props.setCategory(e.target.value)}>
 						{selectCategory.map((oneCategory, index) => {
 							return (
 								<option key={index} value={oneCategory}>
@@ -85,8 +65,8 @@ export const IngredientsForm = ({
 						id="ingredient-quantity"
 						type="number"
 						required
-						value={quantity!}
-						onChange={(e) => setQuantity(Number(e.target.value))}
+						value={props.quantity!}
+						onChange={(e) => props.setQuantity(Number(e.target.value))}
 						min="0"
 					/>
 				</label>
@@ -94,7 +74,7 @@ export const IngredientsForm = ({
 					<div className="label">
 						<span className="label-text">Choose the unit</span>
 					</div>
-					<select className="select" id="ingredient-unit" required value={unit} onChange={(e) => setUnit(e.target.value)}>
+					<select className="select" id="ingredient-unit" required value={props.unit} onChange={(e) => props.setUnit(e.target.value)}>
 						{selectUnit.map((oneUnit, index) => {
 							return (
 								<option key={index} value={oneUnit}>
@@ -116,8 +96,8 @@ export const IngredientsForm = ({
 						id="ingredient-calories"
 						type="number"
 						required
-						value={calories!}
-						onChange={(e) => setCalories(Number(e.target.value))}
+						value={props.calories!}
+						onChange={(e) => props.setCalories(Number(e.target.value))}
 						min="0"
 					/>
 				</label>
@@ -130,8 +110,8 @@ export const IngredientsForm = ({
 						id="ingredient-fat"
 						type="number"
 						required
-						value={fat!}
-						onChange={(e) => setFat(Number(e.target.value))}
+						value={props.fat!}
+						onChange={(e) => props.setFat(Number(e.target.value))}
 						min="0.00"
 						step="0.01"
 					/>
@@ -145,8 +125,8 @@ export const IngredientsForm = ({
 						id="ingredient-carbs"
 						type="number"
 						required
-						value={carbs!}
-						onChange={(e) => setCarbs(Number(e.target.value))}
+						value={props.carbs!}
+						onChange={(e) => props.setCarbs(Number(e.target.value))}
 						min="0.00"
 						step="0.01"
 					/>
@@ -160,8 +140,8 @@ export const IngredientsForm = ({
 						id="ingredient-protein"
 						type="number"
 						required
-						value={protein!}
-						onChange={(e) => setProtein(Number(e.target.value))}
+						value={props.protein!}
+						onChange={(e) => props.setProtein(Number(e.target.value))}
 						min="0.00"
 						step="0.01"
 					/>
@@ -175,16 +155,16 @@ export const IngredientsForm = ({
 						id="ingredient-fiber"
 						type="number"
 						required
-						value={fiber!}
-						onChange={(e) => setFiber(Number(e.target.value))}
+						value={props.fiber!}
+						onChange={(e) => props.setFiber(Number(e.target.value))}
 						min="0.00"
 						step="0.01"
 					/>
 				</label>
 			</div>
 			<div>
-				<button className="btn btn-primary w-full lg:max-w-48 self-end mt-8" disabled={isLoading} type="submit">
-					{btnText}
+				<button className="btn btn-primary w-full lg:max-w-48 self-end mt-8" disabled={props.isLoading} type="submit">
+					{props.btnText}
 				</button>
 			</div>
 		</form>

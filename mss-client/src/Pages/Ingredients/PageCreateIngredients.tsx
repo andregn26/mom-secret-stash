@@ -1,72 +1,108 @@
-import React, { useState } from "react";
-import { postCreateIngredient } from "@/api";
+import { useForm, SubmitHandler, Controller } from "react-hook-form";
+import { selectCategory, selectUnit } from "@/data";
 import { NavigationHeader } from "@/Components/Molecules/NavigationHeader";
+import { postCreateIngredient } from "@/api";
 import toast from "react-hot-toast";
-import axios from "axios";
-import { IngredientsForm } from "@/Components/Organisms/Ingredients/IngredientsForm";
+import { InputsIngredient } from "@/types/ingredientTypes";
 
 export const PageCreateIngredients = () => {
-	const [name, setName] = useState<string>("");
-	const [category, setCategory] = useState<string>("Grocery");
-	const [quantity, setQuantity] = useState<number>(0);
-	const [unit, setUnit] = useState<string>("Cup");
-	const [calories, setCalories] = useState<number>(0);
-	const [fat, setFat] = useState<number>(0);
-	const [carbs, setCarbs] = useState<number>(0);
-	const [protein, setProtein] = useState<number>(0);
-	const [fiber, setFiber] = useState<number>(0);
-	const [isLoadingPost, setIsLoadingPost] = useState<boolean>(false);
+	const {
+		register,
+		handleSubmit,
+		control,
+		reset,
+		formState: { errors },
+	} = useForm<InputsIngredient>();
 
-	const handleCreateSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-		e.preventDefault();
+	const onSubmit: SubmitHandler<InputsIngredient> = async (data) => {
+		console.log(data);
 		try {
-			setIsLoadingPost(true);
-			const res = await postCreateIngredient({ name, category, quantity, unit, calories, fat, carbs, protein, fiber });
-			setName("");
-			setQuantity(0);
-			setCalories(0);
-			setFat(0);
-			setCarbs(0);
-			setProtein(0);
-			setFiber(0);
-			toast.success(res.data.message);
-		} catch (error: unknown) {
-			if (axios.isAxiosError(error)) {
-				toast.error(error.response?.data?.message);
-			} else {
-				toast("Something went wrong!");
-			}
-		} finally {
-			setIsLoadingPost(false);
+			const postRequest = await postCreateIngredient(data);
+			toast.success(postRequest.data.message);
+			reset();
+		} catch (error) {
+			console.log(error);
 		}
 	};
 
 	return (
 		<>
 			<NavigationHeader pageName="Create Ingredient" />
-			<IngredientsForm
-				onSubmit={handleCreateSubmit}
-				name={name}
-				setName={setName}
-				category={category}
-				setCategory={setCategory}
-				quantity={quantity}
-				setQuantity={setQuantity}
-				unit={unit}
-				setUnit={setUnit}
-				calories={calories}
-				setCalories={setCalories}
-				fat={fat}
-				setFat={setFat}
-				carbs={carbs}
-				setCarbs={setCarbs}
-				protein={protein}
-				setProtein={setProtein}
-				fiber={fiber}
-				setFiber={setFiber}
-				isLoading={isLoadingPost}
-				btnText="Create"
-			/>
+			<div className="grow flex flex-col justify-center">
+				<form
+					onSubmit={handleSubmit(onSubmit)}
+					className="p-4 md:p-6 xl:p-8 2xl:p-10 bg-neutral shadow-sm border w-full rounded-md flex flex-col gap-4 max-w-screen-md mx-auto">
+					{/* NAME, CATEGORY  */}
+					<div className="flex gap-4">
+						<div className="w-full">
+							<input
+								placeholder="Ingredient Name"
+								{...register("name", { required: "Name of the ingredient is required" })}
+								className="input w-full"
+							/>
+							{errors.name && <p className="pt-2 text-xs text-error">{errors.name.message}</p>}
+						</div>
+						<div className="w-full">
+							<Controller
+								name="category"
+								control={control}
+								defaultValue=""
+								rules={{ required: "Category is required" }}
+								render={({ field }) => (
+									<select {...field} className="select w-full">
+										<option value="">Select Category</option>
+										{selectCategory.map((oneCategory, index) => {
+											return (
+												<option key={index} value={oneCategory}>
+													{oneCategory}
+												</option>
+											);
+										})}
+									</select>
+								)}
+							/>
+							{errors.category && <p className="pt-2 text-xs text-error">{errors.category.message}</p>}
+						</div>
+					</div>
+
+					{/* QUANTITY, UNIT  */}
+					<div className="flex gap-4">
+						<div className="w-full">
+							<input type="number" placeholder="Quantity" {...register("quantity")} className="input w-full" />
+						</div>
+						<div className="w-full">
+							<Controller
+								name="unit"
+								control={control}
+								defaultValue=""
+								render={({ field }) => (
+									<select {...field} className="select w-full">
+										<option value="">Select Unit</option>
+										{selectUnit.map((oneUnit, index) => {
+											return (
+												<option key={index} value={oneUnit}>
+													{oneUnit}
+												</option>
+											);
+										})}
+									</select>
+								)}
+							/>
+						</div>
+					</div>
+
+					{/* CALORIES, FAT, CARBS, PROTEIN , FIBER */}
+					<div className="grid grid-cols-2 xl:grid-cols-6 gap-4">
+						<input min={0} type="number" placeholder="Calories" {...register("calories", { min: 0 })} className="input w-full col-span-2" />
+						<input min={0} type="number" placeholder="Fat" {...register("fat", { min: 0 })} className="input w-full" />
+						<input min={0} type="number" placeholder="Carbs" {...register("carbs", { min: 0 })} className="input w-full" />
+						<input min={0} type="number" placeholder="Protein" {...register("protein", { min: 0 })} className="input w-full" />
+						<input min={0} type="number" placeholder="Fiber" {...register("fiber", { min: 0 })} className="input w-full" />
+					</div>
+
+					<input className="btn btn-primary" type="submit" />
+				</form>
+			</div>
 		</>
 	);
 };

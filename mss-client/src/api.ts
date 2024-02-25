@@ -1,5 +1,5 @@
 import { UserLogin, UserRegister } from "./types/userTypes";
-import { Ingredient } from "./types/ingredientTypes";
+import { IngredientFromDB } from "./types/ingredientTypes";
 import axios from "axios";
 import { PostAndPutRecipe } from "./types/recipeTypes";
 const BASE_URL = `${import.meta.env.VITE_API}` || "http://localhost:5005/api";
@@ -86,7 +86,7 @@ export const putRemoveRecipeFromFavorites = (recipeId: string) => {
 };
 
 // INGREDIENTS: The CRUD operations are reserved to Admin users
-export const postCreateIngredient = (newIngredient: Ingredient) => {
+export const postCreateIngredient = (newIngredient: IngredientFromDB) => {
 	return axios.post(`${BASE_URL}/ingredients/create`, newIngredient, { headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` } });
 };
 
@@ -98,7 +98,7 @@ export const getIngredient = (IngredientId: string) => {
 	return axios.get(`${BASE_URL}/ingredients/${IngredientId}`);
 };
 
-export const putEditIngredient = (IngredientId: string, ingredientToEdit: Ingredient) => {
+export const putEditIngredient = (IngredientId: string, ingredientToEdit: IngredientFromDB) => {
 	return axios.put(`${BASE_URL}/ingredients/edit/${IngredientId}`, ingredientToEdit, {
 		headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` },
 	});
