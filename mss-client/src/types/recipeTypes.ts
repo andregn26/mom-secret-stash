@@ -28,13 +28,14 @@ export type RecipeFromDB = {
 		};
 	}[];
 	instructions: InstructionFromDB[];
+	tools: string[];
 };
 
 export type PostAndPutRecipe = {
 	name: string;
 	description: string;
-	ingredients: { ingredient: string; quantityForRecipe: number }[];
-	instructions: NewInstruction[];
+	ingredients?: { ingredient: string; quantityForRecipe: number }[];
+	instructions?: Instruction[];
 	prepTime: number;
 	servings: number;
 	foodType: string;
@@ -43,6 +44,8 @@ export type PostAndPutRecipe = {
 	tools: string[];
 };
 
+export type InputsRecipe = { profilePicture: null; name: string; description: string; prepTime: number; servings: number };
+
 export type NewIngredient = {
 	ingredientId: string;
 	quantityForRecipe: number;
@@ -50,7 +53,8 @@ export type NewIngredient = {
 	unit?: number;
 };
 
-export type NewInstruction = {
+export type Instruction = {
+	_id?: string;
 	step: number;
 	instruction: string;
 };

@@ -29,7 +29,7 @@ router.get("/all", (req, res, next) => {
 	Ingredient.find({})
 		.sort({ updatedAt: -1 })
 		.then((foundedIngredients) => {
-			res.status(200).json({ message: "Ingredients founded", foundedIngredients });
+			res.status(200).json({ message: "Ingredients founded", data: foundedIngredients });
 		})
 		.catch((error) => next(error));
 });

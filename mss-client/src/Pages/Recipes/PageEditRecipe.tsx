@@ -1,227 +1,222 @@
-import { useState, useContext } from "react";
-import { getRecipe, putEditRecipe, getAllIngredients, postUpload } from "@/api";
-import { useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import toast from "react-hot-toast";
-import { NavigationHeader } from "@/Components/Molecules/NavigationHeader";
-import { RecipeForm } from "@/Components/Organisms/Recipes/RecipeForm";
-import { NewInstruction, NewIngredient } from "@/types/recipeTypes";
-import { Ingredient } from "@/types/ingredientTypes";
-
+/* eslint-disable no-mixed-spaces-and-tabs */
+import { RecipeIngredients } from "@/Components/Organisms/Recipes/RecipeIngredients";
+import { Instructions } from "@/Components/Organisms/Recipes/RecipeInstructions";
+import { ProfilePic } from "@/Components/Organisms/Recipes/RecipeProfilePic";
+import { postUpload, putEditRecipe } from "@/api";
 import { AuthContext } from "@/context/auth.context";
-import axios from "axios";
 import { useFetchAllFoodTypes } from "@/hooks/useFetchAllFoodTypes";
+import { useFetchAllIngredients } from "@/hooks/useFetchAllIngredients";
+import { useFetchSingleRecipe } from "@/hooks/useFetchSingleRecipe";
+import { InputsRecipe, Instruction, NewIngredient } from "@/types/recipeTypes";
+import { isAxiosError } from "axios";
+import { useContext, useEffect, useState } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import { useNavigate, useParams } from "react-router-dom";
+import Select from "react-select";
+
+const optionsTools = [
+	{ value: "Airfryer", label: "Airfryer" },
+	{ value: "Oven", label: "Oven" },
+	{ value: "Slow Cook", label: "Slow Cook" },
+];
 
 export const PageEditRecipe = () => {
-	const { recipeId } = useParams();
 	const navigate = useNavigate();
+	const { recipeId } = useParams();
+	const { singleRecipeFromAPI, singleRecipeCaloriesStatsFromAPI, isLoadingSingleRecipe, isDataFetchingSuccess } = useFetchSingleRecipe(recipeId);
+	const { allIngredientsFromDB } = useFetchAllIngredients();
+	console.log("🚀 ~ PageEditRecipe ~ singleRecipeFromAPI:", singleRecipeFromAPI);
 	const { userInSession } = useContext(AuthContext);
-	// STATE - PRIMITIVE VALUES
 	const [fileImg, setFileImg] = useState<File | null>(null);
-	const [fetchedImgLink, setFetchedImgLink] = useState<string>("");
-	const [editedName, setEditedName] = useState<string>("");
-	const [editedDescription, setEditedDescription] = useState<string>("");
-	const [editedPrepTime, setEditedPrepTime] = useState<number>(60);
-	const [editedServings, setEditedServings] = useState<number>(4);
-	const [isLoading, setIsLoading] = useState<boolean>(false);
-	// STATE - OBJECT AND ARRAY VALUES
-	const [editedTools, setEditedTools] = useState<string[]>([]);
-	const [allInstructions, setAllInstructions] = useState<NewInstruction[]>([]);
-	const [newInstruction, setNewInstruction] = useState<NewInstruction>({
-		step: 1,
-		instruction: "",
-	});
-	const [allIngredientsFromDB, setAllIngredientsFromDB] = useState<Ingredient[]>([]);
-
 	const [allIngredients, setAllIngredients] = useState<NewIngredient[]>([]);
-	const [newIngredient, setNewIngredient] = useState<NewIngredient>({
-		ingredientId: "",
-		name: "",
-		quantityForRecipe: 0,
-		unit: 0,
-	});
+	const [instructions, setInstructions] = useState<Instruction[]>([]);
 	const [foodTypeId, setFoodTypeId] = useState<string>("");
-
-	const { allFoodTypesFromDB, isLoadingFoodTypesFromDB } = useFetchAllFoodTypes();
+	const [selectedTools, setSelectedTools] = useState<string[]>([]);
+	const { allFoodTypesFromDB } = useFetchAllFoodTypes();
+	const optionsFoodType: { value: string; label: string }[] = allFoodTypesFromDB
+		? allFoodTypesFromDB.map((foodType) => {
+				return { value: foodType._id, label: foodType.name };
+		  })
+		: [];
 
 	useEffect(() => {
-		const fetchData = async () => {
-			setIsLoading(true);
-			try {
-				if (!recipeId) {
-					throw Error;
-				}
-				const fetchedRecipe = await getRecipe(recipeId);
-				const recipeFound = fetchedRecipe.data.recipeFounded;
-				setFetchedImgLink(recipeFound.imageUrl);
-				setEditedName(recipeFound.name);
-				setEditedDescription(recipeFound.description);
-				setEditedPrepTime(recipeFound.prepTime);
-				setEditedServings(recipeFound.servings);
-				setEditedTools(recipeFound.tools);
-				setFoodTypeId(recipeFound.foodType._id);
-				setAllInstructions(recipeFound.instructions);
-				const ingredientsFetched = await getAllIngredients();
-				setAllIngredientsFromDB(ingredientsFetched.data.foundedIngredients);
-				const recipeIds = recipeFound.ingredients.map((ingredient: { ingredient: { _id: string } }) => ingredient.ingredient._id);
-				setAllIngredients(
-					ingredientsFetched.data.foundedIngredients
-						.filter((option: { _id: string }) => recipeIds.includes(option._id))
-						.map((ingredient: { _id: string; name: string; unit: string }) => {
-							return {
-								ingredientId: ingredient._id,
-								quantityForRecipe: recipeFound.ingredients.find(
-									(recipeIngredient: { ingredient: { _id: string } }) => recipeIngredient.ingredient._id === ingredient._id
-								).quantityForRecipe,
-								name: ingredient.name,
-								unit: ingredient.unit,
-							};
-						})
-				);
-			} catch (error: unknown) {
-				if (axios.isAxiosError(error)) {
-					toast.error(error.message);
-				}
-				console.log(error);
-			} finally {
-				setIsLoading(false);
-			}
-		};
-
-		fetchData();
-	}, [recipeId]);
-
-	const handleSelectFileImg = (e: React.ChangeEvent<HTMLInputElement>) => {
-		if (e.target.files) {
-			setFileImg(e.target.files[0]);
+		if (singleRecipeFromAPI && allIngredientsFromDB) {
+			setInstructions(singleRecipeFromAPI.instructions);
+			setFoodTypeId(singleRecipeFromAPI.foodType._id);
+			const recipeIds = singleRecipeFromAPI.ingredients.map((ingredient: { ingredient: { _id: string } }) => ingredient.ingredient._id);
+			console.log("🚀 ~ useEffect ~ recipeIds:", recipeIds);
+			setAllIngredients(
+				allIngredientsFromDB
+					.filter((option: { _id: string }) => recipeIds.includes(option._id))
+					.map((ingredient: { _id: string; name: string; unit: string }) => {
+						return {
+							ingredientId: ingredient._id,
+							quantityForRecipe: singleRecipeFromAPI.ingredients.find(
+								(recipeIngredient: { ingredient: { _id: string } }) => recipeIngredient.ingredient._id === ingredient._id
+							).quantityForRecipe,
+							name: ingredient.name,
+							unit: ingredient.unit,
+						};
+					})
+			);
 		}
-	};
+	}, [singleRecipeFromAPI, allIngredientsFromDB]);
 
-	const optionsIngredients = allIngredientsFromDB.map((ingredient) => {
-		return { value: ingredient._id, label: `${ingredient.name} | ${ingredient.unit}`, unit: ingredient.unit };
-	});
+	const {
+		register,
+		handleSubmit,
+		formState: { errors },
+	} = useForm<InputsRecipe>();
 
-	const handleInstructionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setNewInstruction((prev) => {
-			return { ...prev, [e.target.id]: e.target.value };
-		});
-	};
-
-	const handleAddInstruction = (e: React.MouseEvent<HTMLButtonElement>) => {
-		e.preventDefault();
-		const updatedAllInstructions = [...allInstructions];
-		updatedAllInstructions.push(newInstruction);
-		setAllInstructions(updatedAllInstructions);
-		setNewInstruction((prev) => ({
-			step: prev.step + 1,
-			instruction: "",
-		}));
-	};
-
-	const handleDeleteInstruction = (e: React.MouseEvent<HTMLButtonElement>, index: number) => {
-		e.preventDefault();
-		setAllInstructions((prev) => prev.filter((elem) => prev.indexOf(elem) !== index));
-	};
-
-	const handleIngredientDelete = (e: React.MouseEvent<HTMLButtonElement>, index: number) => {
-		e.preventDefault();
-		setAllIngredients((prev) => prev.filter((ingredient) => prev.indexOf(ingredient) !== index));
-	};
-
-	const handleAddIngredient = (e: React.MouseEvent<HTMLButtonElement>) => {
-		e.preventDefault();
-		if (newIngredient.ingredientId === "" || !newIngredient.name || !newIngredient.unit) {
-			toast.error("Something went wrong!");
-			return;
-		}
-		let ingredientExists = false;
-		allIngredients.forEach((ingredient) => {
-			if (ingredient.ingredientId === newIngredient.ingredientId) {
-				ingredientExists = true;
-				toast.error("Ingredient already added.");
-			}
-		});
-		if (!ingredientExists) {
-			const updatedAllIngredients = [...allIngredients];
-			updatedAllIngredients.push(newIngredient);
-			setAllIngredients(updatedAllIngredients);
-		}
-	};
-
-	const handleSelectNewIngredient = (ingredient: { value: string; label: string; unit: number }) => {
-		setNewIngredient((prev) => ({ ...prev, ingredientId: ingredient.value, name: ingredient.label, unit: ingredient.unit }));
-	};
-
-	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-		e.preventDefault();
-		setIsLoading(true);
+	const handleFormSubmit: SubmitHandler<InputsRecipe> = async (data) => {
+		console.log({ instructions, data, foodTypeId, selectedTools });
 		try {
-			const data = new FormData();
-			data.append("my_file", fileImg as Blob);
-			const imgData = await postUpload(data);
-			const imageUrl = imgData.data.url;
-			if (!recipeId) {
-				throw Error;
-			}
-			const res = await putEditRecipe(recipeId, {
-				imageUrl: imageUrl,
-				name: editedName,
-				description: editedDescription,
-				prepTime: editedPrepTime,
-				servings: editedServings,
-				instructions: allInstructions,
-				ingredients: allIngredients.map(({ ingredientId, quantityForRecipe }) => ({ ingredient: ingredientId, quantityForRecipe })),
+			if (!recipeId) throw Error("recipe Id not defined");
+			const formData = new FormData();
+			formData.append("my_file", fileImg as Blob);
+			const profileImgData = await postUpload(formData);
+			// profileImgData.data.url
+			const createdRecipe = await putEditRecipe(recipeId, {
+				name: data.name,
+				description: data.description,
+				createdBy: userInSession!._id,
 				foodType: foodTypeId,
-				tools: editedTools,
+				prepTime: data.prepTime,
+				servings: data.servings,
+				imageUrl: profileImgData.data.url,
+				tools: selectedTools,
+				instructions,
 			});
-			console.log("🚀 ~ .then ~ res:", res);
-			toast.success(res.data.message);
+			if (createdRecipe) {
+				toast.success(createdRecipe.data.message);
+				navigate(`/${userInSession!._id}/my-recipes`);
+				console.log(createdRecipe);
+			}
 		} catch (error: unknown) {
-			if (axios.isAxiosError(error)) {
+			if (isAxiosError(error)) {
 				toast.error(error.response?.data.message);
 			}
 			console.log(error);
-		} finally {
-			setIsLoading(false);
-			navigate(`/${userInSession!._id}/my-recipes`);
 		}
 	};
+
 	return (
 		<>
-			<NavigationHeader pageName="Edit Recipe" />
-			<RecipeForm
-				isLoading={isLoading}
-				type="edit"
-				onSubmit={handleSubmit}
-				onChangeFile={handleSelectFileImg}
-				fetchedImgLink={fetchedImgLink}
-				name={editedName}
-				setName={setEditedName}
-				description={editedDescription}
-				setDescription={setEditedDescription}
-				prepTime={editedPrepTime}
-				setPrepTime={setEditedPrepTime}
-				servings={editedServings}
-				setServings={setEditedServings}
-				allFoodTypesFromDB={allFoodTypesFromDB}
-				setFoodTypeId={setFoodTypeId}
-				foodTypeId={foodTypeId}
-				setTools={setEditedTools}
-				tools={editedTools}
-				optionsIngredients={optionsIngredients}
-				newIngredient={newIngredient}
-				setNewIngredient={setNewIngredient}
-				allIngredients={allIngredients}
-				newInstruction={newInstruction}
-				allInstructions={allInstructions}
-				handleInstructionChange={handleInstructionChange}
-				handleSelectNewIngredient={handleSelectNewIngredient}
-				handleAddIngredient={handleAddIngredient}
-				handleIngredientDelete={handleIngredientDelete}
-				handleAddInstruction={handleAddInstruction}
-				handleDeleteInstruction={handleDeleteInstruction}
-				isLoadingFoodTypesFromDB={isLoadingFoodTypesFromDB}
-			/>
+			{!singleRecipeFromAPI || isLoadingSingleRecipe ? (
+				<div className="h-96 skeleton"></div>
+			) : (
+				<>
+					{" "}
+					<form
+						onSubmit={handleSubmit(handleFormSubmit)}
+						className="p-4 md:p-6 xl:p-8 2xl:p-10 bg-neutral shadow-sm border w-full rounded-md text-base sm:text-lg">
+						{singleRecipeFromAPI ? (
+							<div className="flex flex-col gap-10 lg:grid grid-cols-3 lg:gap-10">
+								{/* COL 1 */}
+								<div className="flex flex-col lg:col-span-1 gap-8">
+									<ProfilePic setFileImg={setFileImg} />
+									<div className="w-full">
+										<input
+											defaultValue={singleRecipeFromAPI?.name}
+											placeholder="Recipe Name"
+											{...register("name", { required: "Name of the recipe is required" })}
+											className="input w-full"
+										/>
+										{errors.name && <p className="pt-2 text-xs text-error">{errors.name.message}</p>}
+									</div>
+									<div className="relative w-full min-w-[200px]">
+										<textarea
+											defaultValue={singleRecipeFromAPI?.description}
+											className="textarea w-full"
+											{...register("description")}
+											placeholder="Description"
+											rows={4}></textarea>
+									</div>
+									<div className="w-full">
+										<input
+											defaultValue={singleRecipeFromAPI?.prepTime}
+											type="number"
+											placeholder="Prep Time"
+											{...register("prepTime", { required: "Prep time is required" })}
+											className="input w-full"
+										/>
+										{errors.prepTime && <p className="pt-2 text-xs text-error">{errors.prepTime.message}</p>}
+									</div>
+									<div className="w-full">
+										<input
+											defaultValue={singleRecipeFromAPI?.servings}
+											type="number"
+											placeholder="Servings"
+											{...register("servings", { required: "Servings is required" })}
+											className="input w-full"
+										/>
+										{errors.servings && <p className="pt-2 text-xs text-error">{errors.servings.message}</p>}
+									</div>
+
+									{singleRecipeFromAPI && (
+										<Select
+											placeholder="Pick one food type"
+											defaultValue={optionsFoodType.find((foodType) => foodType.value.includes(foodTypeId))}
+											onChange={(option) => setFoodTypeId(option!.value)}
+											classNames={{
+												control: ({ isFocused }) =>
+													isFocused
+														? " w-full !bg-base-100 !border-2 !border-base-300  !h-12 !cursor-pointer !shadow-none"
+														: "!border-2 !border-transparent !bg-base-100 !h-12",
+												menuList: () => "bg-base-200 rounded-sm text-sm",
+												option: ({ isFocused }) => (isFocused ? " !bg-primary/20" : ""),
+												placeholder: () => "text-sm !text-neutral-content",
+												singleValue: () => "text-sm !text-neutral-content",
+											}}
+											options={optionsFoodType}
+										/>
+									)}
+
+									<Select
+										placeholder="Select the tools"
+										onChange={(e) => setSelectedTools(e.map((el) => el.value))}
+										isMulti
+										closeMenuOnSelect={false}
+										classNames={{
+											control: ({ isFocused }) =>
+												isFocused
+													? " w-full !bg-base-100 !border-2 !border-base-300  !h-12 !cursor-pointer !shadow-none"
+													: "!border-2 !border-transparent !bg-base-100 !h-12",
+											menu: () => " w-full text-sm rounded-sm",
+											menuList: () => " bg-base-200 rounded-sm",
+											option: ({ isFocused }) => (isFocused ? " !bg-primary/20" : ""),
+											placeholder: () => "text-sm !text-neutral-content",
+											multiValue: () => "text-sm !text-neutral-content",
+											multiValueRemove: () => "hover:!bg-error !text-error hover:!text-neutral-content",
+										}}
+										options={optionsTools}
+										value={optionsTools.filter((tool) => singleRecipeFromAPI?.tools.includes(tool.value))}
+									/>
+								</div>
+
+								{/* COL 2 */}
+								<div className="flex flex-col lg:col-span-2 gap-8 justify-between h-full">
+									<div>
+										<RecipeIngredients
+											allIngredientsFromDB={allIngredientsFromDB}
+											allIngredients={allIngredients}
+											setAllIngredients={setAllIngredients}
+										/>
+										<Instructions instructions={instructions} setInstructions={setInstructions} />
+									</div>
+
+									<button type="submit" className="btn btn-primary">
+										Save Recipe
+									</button>
+								</div>
+							</div>
+						) : (
+							<p>is loading</p>
+						)}
+					</form>
+				</>
+			)}
 		</>
 	);
 };

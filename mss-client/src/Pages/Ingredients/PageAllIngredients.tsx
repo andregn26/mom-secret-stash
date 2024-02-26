@@ -33,7 +33,7 @@ export const PageAllIngredients = () => {
 		(async () => {
 			setRenderAgain(false);
 			const res = await getAllIngredients();
-			setAllIngredients(res.data.foundedIngredients);
+			setAllIngredients(res.data.data);
 		})();
 	}, [renderAgain]);
 

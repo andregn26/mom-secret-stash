@@ -1,184 +1,198 @@
-import { postCreateRecipe, postUpload, getAllIngredients } from "@/api";
-import React, { useEffect, useState } from "react";
+/* eslint-disable no-mixed-spaces-and-tabs */
+import { RecipeIngredients } from "@/Components/Organisms/Recipes/RecipeIngredients";
+import { Instructions } from "@/Components/Organisms/Recipes/RecipeInstructions";
+import { ProfilePic } from "@/Components/Organisms/Recipes/RecipeProfilePic";
+import { postCreateRecipe, postUpload } from "@/api";
+import { AuthContext } from "@/context/auth.context";
+import { useFetchAllFoodTypes } from "@/hooks/useFetchAllFoodTypes";
+import { useFetchAllIngredients } from "@/hooks/useFetchAllIngredients";
+import { InputsRecipe, Instruction, NewIngredient } from "@/types/recipeTypes";
+import { isAxiosError } from "axios";
+import { useContext, useState } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import { useContext } from "react";
-import { AuthContext } from "@/context/auth.context";
-import { NewIngredient, NewInstruction } from "@/types/recipeTypes";
-import { NavigationHeader } from "@/Components/Molecules/NavigationHeader";
-import { Ingredient } from "@/types/ingredientTypes";
-import { RecipeForm } from "@/Components/Organisms/Recipes/RecipeForm";
-import { useFetchAllFoodTypes } from "@/hooks/useFetchAllFoodTypes";
+import Select from "react-select";
+
+const optionsTools = [
+	{ value: "Airfryer", label: "Airfryer" },
+	{ value: "Oven", label: "Oven" },
+	{ value: "Slow Cook", label: "Slow Cook" },
+];
 
 export const PageCreateRecipe = () => {
+	const { allFoodTypesFromDB, isLoadingFoodTypesFromDB } = useFetchAllFoodTypes();
+	const { allIngredientsFromDB, isLoadingAllIngredientsFromDB } = useFetchAllIngredients();
+
+	const isLoadingData = isLoadingFoodTypesFromDB || isLoadingAllIngredientsFromDB;
+
 	const navigate = useNavigate();
+
 	const { userInSession } = useContext(AuthContext);
-	// STATE - PRIMITIVE VALUES
 	const [fileImg, setFileImg] = useState<File | null>(null);
-	const [isLoading, setIsLoading] = useState<boolean>(false);
-	const [name, setName] = useState<string>("");
-	const [description, setDescription] = useState<string>("");
-	const [prepTime, setPrepTime] = useState<number>(60);
-	const [servings, setServings] = useState<number>(4);
-	// STATE - NON-PRIMITIVE VALUES
-	const [allInstructions, setAllInstructions] = useState<NewInstruction[]>([]);
-	const [newInstruction, setNewInstruction] = useState<NewInstruction>({
-		step: 1,
-		instruction: "",
-	});
-	const [allIngredientsFromDB, setAllIngredientsFromDB] = useState<Ingredient[]>([]);
-	const [allIngredients, setAllIngredients] = useState<NewIngredient[]>([]);
-	const [newIngredient, setNewIngredient] = useState<NewIngredient>({
-		ingredientId: "",
-		name: "",
-		quantityForRecipe: 0,
-		unit: 0,
-	});
+	const [instructions, setInstructions] = useState<Instruction[]>([]);
 
 	const [foodTypeId, setFoodTypeId] = useState<string>("");
-	const [tools, setTools] = useState<string[]>([]);
+	const [selectedTools, setSelectedTools] = useState<string[]>([]);
+	const optionsFoodType: { value: string; label: string }[] = allFoodTypesFromDB
+		? allFoodTypesFromDB.map((foodType) => {
+				return { value: foodType._id, label: foodType.name };
+		  })
+		: [];
 
-	const { allFoodTypesFromDB, isLoadingFoodTypesFromDB } = useFetchAllFoodTypes();
+	const {
+		register,
+		handleSubmit,
+		formState: { errors },
+	} = useForm<InputsRecipe>();
 
-	useEffect(() => {
-		getAllIngredients()
-			.then((ingredientsFetched) => {
-				setAllIngredientsFromDB(ingredientsFetched.data.foundedIngredients);
-			})
-			.catch((error) => {
-				toast.error(error.message);
+	// Ingredients
+
+	const [allIngredients, setAllIngredients] = useState<NewIngredient[]>([]);
+
+	const handleFormSubmit: SubmitHandler<InputsRecipe> = async (data) => {
+		console.log({ instructions, data, foodTypeId, selectedTools });
+		try {
+			const formData = new FormData();
+			formData.append("my_file", fileImg as Blob);
+			const profileImgData = await postUpload(formData);
+			const createdRecipe = await postCreateRecipe({
+				name: data.name,
+				description: data.description,
+				createdBy: userInSession!._id,
+				foodType: foodTypeId,
+				prepTime: data.prepTime,
+				servings: data.servings,
+				imageUrl: profileImgData.data.url,
+				tools: selectedTools,
+				instructions,
 			});
-	}, []);
-
-	const handleSelectFileImg = (e: React.ChangeEvent<HTMLInputElement>) => {
-		if (e.target.files) {
-			setFileImg(e.target.files[0]);
-		}
-	}; // can i transfer to recipe form?
-
-	const optionsIngredients = allIngredientsFromDB.map((ingredient) => {
-		return { value: ingredient._id, label: `${ingredient.name} | ${ingredient.unit}`, unit: ingredient.unit };
-	});
-
-	const handleInstructionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setNewInstruction((prev) => {
-			return { ...prev, [e.target.id]: e.target.value };
-		});
-	};
-
-	const handleAddInstruction = (e: React.MouseEvent<HTMLButtonElement>) => {
-		e.preventDefault();
-		const updatedAllInstructions = [...allInstructions];
-		updatedAllInstructions.push(newInstruction);
-		setAllInstructions(updatedAllInstructions);
-		setNewInstruction((prev) => ({
-			step: prev.step + 1,
-			instruction: "",
-		}));
-	};
-
-	const handleDeleteInstruction = (e: React.MouseEvent<HTMLButtonElement>, index: number) => {
-		e.preventDefault();
-		setAllInstructions((prev) => prev.filter((elem) => prev.indexOf(elem) !== index));
-	};
-
-	const handleIngredientDelete = (e: React.MouseEvent<HTMLButtonElement>, index: number) => {
-		e.preventDefault();
-		setAllIngredients((prev) => prev.filter((ingredient) => prev.indexOf(ingredient) !== index));
-	};
-
-	const handleAddIngredient = (e: React.MouseEvent<HTMLButtonElement>) => {
-		e.preventDefault();
-		if (newIngredient.ingredientId === "" || !newIngredient.name || !newIngredient.unit) {
-			toast.error("Something went wrong!");
-			return;
-		}
-
-		let ingredientExists = false;
-		allIngredients.forEach((ingredient) => {
-			if (ingredient.ingredientId === newIngredient.ingredientId) {
-				ingredientExists = true;
-				toast.error("Ingredient already added.");
-			}
-		});
-		if (!ingredientExists) {
-			const updatedAllIngredients = [...allIngredients];
-			updatedAllIngredients.push(newIngredient);
-			setAllIngredients(updatedAllIngredients);
-		}
-	};
-
-	const handleSelectNewIngredient = (ingredient: { value: string; label: string; unit: number }) => {
-		setNewIngredient((prev) => ({ ...prev, ingredientId: ingredient.value, name: ingredient.label, unit: ingredient.unit }));
-	};
-
-	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-		e.preventDefault();
-		setIsLoading(true);
-		const data = new FormData();
-		data.append("my_file", fileImg as Blob);
-		postUpload(data)
-			.then((imgData) => {
-				return imgData.data.url;
-			})
-			.then((imageUrl) => {
-				return postCreateRecipe({
-					name,
-					description,
-					createdBy: userInSession!._id,
-					instructions: allInstructions,
-					ingredients: allIngredients.map(({ ingredientId, quantityForRecipe }) => ({ ingredient: ingredientId, quantityForRecipe })),
-					foodType: foodTypeId,
-					prepTime,
-					servings,
-					imageUrl: imageUrl,
-					tools,
-				});
-			})
-			.then((res) => {
-				console.log(res);
-				toast.success(res.data.message);
+			if (createdRecipe) {
+				toast.success(createdRecipe.data.message);
 				navigate(`/${userInSession!._id}/my-recipes`);
-			})
-			.catch((error) => toast.error(error.response.data.message))
-			.finally(() => {
-				setIsLoading(false);
-			});
+				console.log(createdRecipe);
+			}
+		} catch (error: unknown) {
+			if (isAxiosError(error)) {
+				toast.error(error.response?.data.message);
+			}
+			console.log(error);
+		}
 	};
 
 	return (
 		<>
-			<NavigationHeader pageName="Create a new recipe" />
-			<RecipeForm
-				isLoading={isLoading}
-				type="create"
-				onSubmit={handleSubmit}
-				onChangeFile={handleSelectFileImg}
-				name={name}
-				setName={setName}
-				description={description}
-				setDescription={setDescription}
-				prepTime={prepTime}
-				setPrepTime={setPrepTime}
-				servings={servings}
-				setServings={setServings}
-				allFoodTypesFromDB={allFoodTypesFromDB}
-				setFoodTypeId={setFoodTypeId}
-				setTools={setTools}
-				optionsIngredients={optionsIngredients}
-				newIngredient={newIngredient}
-				setNewIngredient={setNewIngredient}
-				allIngredients={allIngredients}
-				newInstruction={newInstruction}
-				allInstructions={allInstructions}
-				handleInstructionChange={handleInstructionChange}
-				handleSelectNewIngredient={handleSelectNewIngredient}
-				handleAddIngredient={handleAddIngredient}
-				handleIngredientDelete={handleIngredientDelete}
-				handleAddInstruction={handleAddInstruction}
-				handleDeleteInstruction={handleDeleteInstruction}
-				isLoadingFoodTypesFromDB={isLoadingFoodTypesFromDB}
-			/>
+			{isLoadingData || !allIngredientsFromDB || !allFoodTypesFromDB ? (
+				<div className="w-full h-[500px] skeleton"></div>
+			) : (
+				<form
+					onSubmit={handleSubmit(handleFormSubmit)}
+					className="p-4 md:p-6 xl:p-8 2xl:p-10 bg-neutral shadow-sm border w-full rounded-md text-base sm:text-lg">
+					<div className="flex flex-col gap-10 lg:grid grid-cols-3 lg:gap-10">
+						{/* COL 1 */}
+						<div className="flex flex-col lg:col-span-1 gap-8">
+							<ProfilePic setFileImg={setFileImg} />
+							{/* NAME */}
+							<div className="w-full">
+								<label className="form-control w-full">
+									<input placeholder="Recipe Name" {...register("name", { required: "Name of the recipe is required" })} className="input w-full" />
+								</label>
+								{errors.name && <p className="pt-2 text-xs text-error">{errors.name.message}</p>}
+							</div>
+							{/* DESCRIPTION */}
+							<div className="relative w-full min-w-[200px]">
+								<textarea className="textarea w-full" {...register("description")} placeholder="Description" rows={4}></textarea>
+							</div>
+							{/* PREP TIME & SERVINGS */}
+							<div className="flex justify-between gap-4 ">
+								<div className="w-full">
+									<label className="form-control w-full">
+										<div className="label">
+											<span className="label-text truncate">Prep time (min)</span>
+										</div>
+										<input
+											type="number"
+											placeholder="Prep Time"
+											{...register("prepTime", { required: "Prep time is required" })}
+											className="input w-full max-w-xs"
+										/>
+									</label>
+									{errors.prepTime && <p className="pt-2 text-xs text-error">{errors.prepTime.message}</p>}
+								</div>
+								<div className="w-full">
+									<label className="form-control w-full">
+										<div className="label">
+											<span className="label-text">Servings</span>
+										</div>
+										<input
+											type="number"
+											placeholder="Servings"
+											{...register("servings", { required: "Servings is required" })}
+											className="input w-full max-w-xs"
+										/>
+									</label>
+
+									{errors.servings && <p className="pt-2 text-xs text-error">{errors.servings.message}</p>}
+								</div>
+							</div>
+
+							{/* FOOD TYPE */}
+							<Select
+								placeholder="Pick one food type"
+								onChange={(option) => setFoodTypeId(option!.value)}
+								classNames={{
+									control: ({ isFocused }) =>
+										isFocused
+											? " w-full !bg-base-100 !border-2 !border-base-300  !h-12 !cursor-pointer !shadow-none"
+											: "!border-2 !border-transparent !bg-base-100 !h-12",
+									menuList: () => "bg-base-200 rounded-sm text-sm",
+									option: ({ isFocused }) => (isFocused ? " !bg-primary/20" : ""),
+									placeholder: () => "text-sm !text-neutral-content",
+									singleValue: () => "text-sm !text-neutral-content",
+								}}
+								options={optionsFoodType}
+							/>
+
+							{/* TOOLS */}
+							<Select
+								placeholder="Select the tools"
+								onChange={(e) => setSelectedTools(e.map((el) => el.value))}
+								isMulti
+								closeMenuOnSelect={false}
+								classNames={{
+									control: ({ isFocused }) =>
+										isFocused
+											? " w-full !bg-base-100 !border-2 !border-base-300  !h-12 !cursor-pointer !shadow-none"
+											: "!border-2 !border-transparent !bg-base-100 !h-12",
+									menu: () => " w-full text-sm rounded-sm",
+									menuList: () => " bg-base-200 rounded-sm",
+									option: ({ isFocused }) => (isFocused ? " !bg-primary/20" : ""),
+									placeholder: () => "text-sm !text-neutral-content",
+									multiValue: () => "text-sm !text-neutral-content",
+									multiValueRemove: () => "hover:!bg-error !text-error hover:!text-neutral-content",
+								}}
+								options={optionsTools}
+							/>
+						</div>
+
+						{/* COL 2 */}
+						<div className=" flex flex-col lg:col-span-2 gap-8 justify-between h-full">
+							<div>
+								<RecipeIngredients
+									allIngredientsFromDB={allIngredientsFromDB}
+									allIngredients={allIngredients}
+									setAllIngredients={setAllIngredients}
+								/>
+								<Instructions instructions={instructions} setInstructions={setInstructions} />
+							</div>
+
+							<button type="submit" className="btn btn-primary">
+								Submit
+							</button>
+						</div>
+					</div>
+				</form>
+			)}
 		</>
 	);
 };
