@@ -6,9 +6,11 @@ import toast from "react-hot-toast";
 
 type Props = {
 	recipeId: string;
+	size?: string;
+	className?: string;
 };
 
-export const ButtonFavorite = ({ recipeId }: Props) => {
+export const ButtonFavorite = ({ className = "", recipeId, size = "24" }: Props) => {
 	const { userInSession } = useContext(AuthContext);
 	const [isRecipeIdInUserFavoriteList, setIsRecipeIdInUserFavoriteList] = useState<boolean>(false);
 	const [renderAgain, setRenderAgain] = useState<boolean>(false);
@@ -47,15 +49,17 @@ export const ButtonFavorite = ({ recipeId }: Props) => {
 	return (
 		<>
 			{userInSession ? (
-				<Like
-					theme={!isRecipeIdInUserFavoriteList ? "outline" : "filled"}
-					size="24"
-					className="text-error btn btn-ghost"
-					onClick={handleRecipeInFavorites}
-				/>
+				<button>
+					<Like
+						theme={!isRecipeIdInUserFavoriteList ? "outline" : "filled"}
+						size={size}
+						className={`${className} text-error`}
+						onClick={handleRecipeInFavorites}
+					/>
+				</button>
 			) : (
-				<span className="tooltip tooltip-accent" data-tip="Login to add to favorites">
-					<Like theme={"filled"} size="24" className="text-error btn btn-ghost btn-disabled" />
+				<span className="tooltip tooltip-accent " data-tip="Login to add to favorites">
+					<Like theme={"outline"} size={size} className="" />
 				</span>
 			)}
 		</>

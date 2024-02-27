@@ -1,12 +1,15 @@
 import { NavigationHeader } from "@/Components/Molecules/NavigationHeader";
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { AlarmClock, EveryUser } from "@icon-park/react";
+import { AlarmClock, EditOne, EveryUser } from "@icon-park/react";
 import { useFetchSingleRecipe } from "@/hooks/useFetchSingleRecipe";
 import { ButtonFavorite } from "@/Components/Atoms/ButtonFavorite";
 import "react-lazy-load-image-component/src/effects/blur.css";
+import { useContext } from "react";
+import { AuthContext } from "@/context/auth.context";
 
 export const PageSingleRecipe = () => {
+	const { userInSession } = useContext(AuthContext);
 	const { recipeId } = useParams();
 	if (!recipeId) throw Error("Recipe Id not defined!");
 	const { singleRecipeFromAPI, singleRecipeCaloriesStatsFromAPI, isLoadingSingleRecipe, isDataFetchingSuccess } = useFetchSingleRecipe(recipeId);
@@ -20,24 +23,19 @@ export const PageSingleRecipe = () => {
 		<div>
 			<NavigationHeader isLoading={isLoading} pageName={singleRecipeFromAPI?.name} />
 
-			<div className="flex flex-col w-full mt-10 items-center">
-				<div className="flex w-full flex-col h-full md:h-[300px]  md:flex-row-reverse">
-					<figure className="relative w-full  md:max-w-[400px] h-[300px]  rounded-sm overflow-hidden">
+			<div className="flex flex-col md:flex-row gap-6 w-full mt-10">
+				<div className="flex w-full flex-col p-4 h-full bg-neutral shadow-sm border rounded-md justify-center items-center md:max-w-sm ">
+					<figure className="relative w-full  h-[300px]  rounded-sm overflow-hidden">
 						{!isLoading ? (
 							<>
 								<img
 									loading="lazy"
 									height={400}
 									width={300}
-									className="object-cover  h-[300px] w-full md:max-w-[400px]"
+									className="object-cover  h-[300px] w-full"
 									src={singleRecipeFromAPI.imageUrl}
 									alt={`${singleRecipeFromAPI.name}`}
 								/>
-								<div className="absolute bottom-2 left-2 z-10">
-									<Link to={"/"} className="badge badge-accent  ">
-										{singleRecipeFromAPI.foodType.name}
-									</Link>
-								</div>
 								<div className="absolute top-2 left-2  max-w-xs bg-base-200/80 px-4 py-2 rounded-sm border mx-auto">
 									<Link
 										className="flex items-center gap-8 flex-row-reverse justify-between"
@@ -63,52 +61,70 @@ export const PageSingleRecipe = () => {
 						)}
 					</figure>
 					{!isLoading ? (
-						<div className=" py-4 px-6 flex w-full text-center flex-col bg-base-200  rounded-b-sm h-full justify-between">
-							{/* FAVORITE FUNCTIONALITY */}
-							<div className="flex justify-between w-full">
-								<div className="flex gap-4 w-full">
-									<span className="flex gap-1 items-center text-base mt-2 text-accent font-bold">
+						<div className="flex flex-col gap-8 w-full mt-4 ">
+							{/* INFO*/}
+							<div className="flex justify-between    w-full">
+								<div className="w-full">
+									<Link to={"/"} className="badge badge-accent  ">
+										{singleRecipeFromAPI.foodType.name}
+									</Link>
+								</div>
+								<div className="flex gap-4 w-full justify-end">
+									<span className="flex gap-1 items-center text-base text-accent font-bold">
 										<AlarmClock theme="outline" size="18" />
 										<span className="tooltip tooltip-accent" data-tip="minutes">
 											{singleRecipeFromAPI.prepTime}
 										</span>
 									</span>
-									<span className="flex gap-1 items-center text-base mt-2 text-accent font-bold">
+									<span className="flex gap-1 items-center text-base text-accent font-bold">
 										<EveryUser theme="outline" size="18" />
 										<span className="tooltip tooltip-accent" data-tip="servings">
 											{singleRecipeFromAPI.servings}
 										</span>
 									</span>
 								</div>{" "}
-								<div className=" flex justify-end px-4 py-4 ">
-									<ButtonFavorite recipeId={recipeId} />
+							</div>
+							{/* NUTRIENTS*/}
+							<div className=" flex w-full text-center flex-col   rounded-b-sm h-full justify-between">
+								<div className="grid grid-cols-8 sm:grid-cols-10 w-full gap-8 sm:gap-0 text-sm">
+									<div className="col-span-8 sm:col-span-2 sm:border-r-2 sm:text-left flex flex-col sm:items-center">
+										<span className="tooltip tooltip-accent" data-tip="per serving">
+											<h4 className="text-xs font-semibold text-accent/80">Calories</h4>
+										</span>
+										<span>{singleRecipeFromAPI.totalCaloriesPerServing}</span>
+									</div>
+									<div className="col-span-4 sm:col-span-2">
+										<h4 className="text-xs font-semibold text-accent/80">fat</h4>
+										<span>{singleRecipeCaloriesStatsFromAPI.totalFat}</span>
+									</div>
+									<div className="col-span-4 sm:col-span-2">
+										<h4 className="text-xs font-semibold text-accent/80">Carbs</h4>
+										<span>{singleRecipeCaloriesStatsFromAPI.totalCarbs}</span>
+									</div>
+									<div className="col-span-4 sm:col-span-2">
+										<h4 className="text-xs font-semibold text-accent/80">Protein</h4>
+										<span>{singleRecipeCaloriesStatsFromAPI.totalProtein}</span>
+									</div>
+									<div className="col-span-4 sm:col-span-2">
+										<h4 className="text-xs font-semibold text-accent/80">Fiber</h4>
+										<span>{singleRecipeCaloriesStatsFromAPI.totalFiber}</span>
+									</div>
 								</div>
 							</div>
+							{singleRecipeFromAPI.description ? (
+								<p className=" text-center   text-xs text-neutral-content/80 ">{singleRecipeFromAPI.description}</p>
+							) : null}
 
-							<p className="overflow-y-scroll text-left h-24  font-semibold text-sm text-neutral-content/80 ">{singleRecipeFromAPI.description}</p>
-							<div className="grid grid-cols-8 md:grid-cols-10 w-full py-4 gap-8 md:gap-0 text-sm">
-								<div className="col-span-8 md:col-span-2 md:border-r-2 md:text-left flex flex-col md:items-start">
-									<span className="tooltip tooltip-accent" data-tip="per serving">
-										<h4 className="text-xs font-semibold text-accent/80">Calories</h4>
-									</span>
-									<span>{singleRecipeFromAPI.totalCaloriesPerServing}</span>
-								</div>
-								<div className="col-span-4 md:col-span-2">
-									<h4 className="text-xs font-semibold text-accent/80">fat</h4>
-									<span>{singleRecipeCaloriesStatsFromAPI.totalFat}</span>
-								</div>
-								<div className="col-span-4 md:col-span-2">
-									<h4 className="text-xs font-semibold text-accent/80">Carbs</h4>
-									<span>{singleRecipeCaloriesStatsFromAPI.totalCarbs}</span>
-								</div>
-								<div className="col-span-4 md:col-span-2">
-									<h4 className="text-xs font-semibold text-accent/80">Protein</h4>
-									<span>{singleRecipeCaloriesStatsFromAPI.totalProtein}</span>
-								</div>
-								<div className="col-span-4 md:col-span-2">
-									<h4 className="text-xs font-semibold text-accent/80">Fiber</h4>
-									<span>{singleRecipeCaloriesStatsFromAPI.totalFiber}</span>
-								</div>
+							{/* BUTTONS*/}
+							<div className=" flex justify-center gap-2 w-full ">
+								<ButtonFavorite size="24" recipeId={recipeId} className="btn" />
+								{userInSession?._id === singleRecipeFromAPI.createdBy._id ? (
+									<button className="btn">
+										<Link className="" to={`/recipe/${singleRecipeFromAPI._id}/edit`}>
+											<EditOne theme="outline" size="24" className="text-accent" />
+										</Link>
+									</button>
+								) : null}
 							</div>
 						</div>
 					) : (
@@ -118,9 +134,9 @@ export const PageSingleRecipe = () => {
 
 				{/* COL 2 */}
 
-				<div className="w-full flex flex-col gap-6 mt-10 lg:gap-24 lg:grid lg:grid-cols-6">
+				<div className="w-full flex flex-col gap-6">
 					{/* INGREDIENTS */}
-					<div className="lg:col-span-2 w-full">
+					<div className=" w-full bg-neutral shadow-sm border rounded-md p-4">
 						{!isLoading ? (
 							<>
 								<h3 className="text-accent text-lg font-semibold mb-2">Ingredients</h3>
@@ -146,7 +162,7 @@ export const PageSingleRecipe = () => {
 						)}
 					</div>
 					{/* INSTRUCTIONS */}
-					<div className="lg:col-span-4">
+					<div className="w-full bg-neutral shadow-sm border rounded-md p-4">
 						{!isLoading ? (
 							<>
 								<h3 className="text-accent text-lg font-semibold mb-2">Instructions</h3>

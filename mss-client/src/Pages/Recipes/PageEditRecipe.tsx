@@ -30,6 +30,7 @@ export const PageEditRecipe = () => {
 	const { userInSession } = useContext(AuthContext);
 	const [fileImg, setFileImg] = useState<File | null>(null);
 	const [allIngredients, setAllIngredients] = useState<NewIngredient[]>([]);
+	console.log("🚀 ~ PageEditRecipe ~ allIngredients:", allIngredients);
 	const [instructions, setInstructions] = useState<Instruction[]>([]);
 	const [foodTypeId, setFoodTypeId] = useState<string>("");
 	const [selectedTools, setSelectedTools] = useState<string[]>([]);
@@ -87,6 +88,7 @@ export const PageEditRecipe = () => {
 				imageUrl: profileImgData.data.url,
 				tools: selectedTools,
 				instructions,
+				ingredients: allIngredients.map(({ ingredientId, quantityForRecipe }) => ({ ingredient: ingredientId, quantityForRecipe })),
 			});
 			if (createdRecipe) {
 				toast.success(createdRecipe.data.message);

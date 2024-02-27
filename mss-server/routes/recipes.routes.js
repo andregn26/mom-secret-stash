@@ -106,6 +106,7 @@ router.get("/:recipeId", async (req, res, next) => {
 router.put("/:recipeId/edit", async (req, res, next) => {
 	const { recipeId } = req.params;
 	const { imageUrl, name, description, prepTime, servings, tools, foodType, instructions, ingredients } = req.body;
+	console.log("🚀 ~ router.put ~ ingredients:", ingredients);
 
 	if (name === "") {
 		res.status(400).json({ message: "Your recipe must have a name!" });
@@ -132,7 +133,6 @@ router.put("/:recipeId/edit", async (req, res, next) => {
 		console.log("🚀 ~ router.put ~ totalCaloriesPerServing:", totalCaloriesPerServing);
 
 		const actualFoodTypeOfRecipe = await Recipe.findById(recipeId);
-		console.log("🚀 ~ router.put ~ actualFoodTypeOfRecipe:", actualFoodTypeOfRecipe);
 
 		const removeFoodType = await FoodType.findByIdAndUpdate(actualFoodTypeOfRecipe.foodType, { $pull: { recipes: recipeId } }, { new: true });
 

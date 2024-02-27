@@ -11,8 +11,8 @@ type RecipeCardProps = {
 
 export const RecipeCard = ({ handleDelete, data, isEditable = false }: RecipeCardProps) => {
 	return (
-		<div className="flex flex-col justify-center items-center bg-neutral h-full rounded-md w-[250px] overflow-hidden shadow-md border">
-			<figure className="relative w-full h-64 p-4 ">
+		<div className="flex flex-col justify-center items-center bg-neutral h-full rounded-md w-[250px] overflow-hidden shadow-sm border">
+			<figure className="relative w-full min-h-64 p-4 ">
 				<img src={data.imageUrl} alt="" className="object-cover w-full h-full rounded-sm" />
 				<div className="absolute bottom-6 left-6 z-10">
 					<Link to={"/"} className="badge badge-accent shadow-sm text-xs">
@@ -37,7 +37,7 @@ export const RecipeCard = ({ handleDelete, data, isEditable = false }: RecipeCar
 				</div>
 			</div>
 			{isEditable && handleDelete && (
-				<div className="w-full flex justify-around gb-base-100 p-4">
+				<div className="w-full flex justify-around p-4">
 					<Link className="btn btn-transparent  w-24" to={`/recipe/${data._id}/edit`}>
 						<EditOne theme="outline" size="16" className="text-accent" />
 					</Link>
